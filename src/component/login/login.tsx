@@ -1,27 +1,27 @@
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
+import { useState } from 'react';
 // import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Link } from "react-router"
-import { Label } from "../ui/label"
-import { Separator } from "../ui/separator"
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Link } from 'react-router';
+import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
 
-export const  LoginPage=()=> {
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
+export const LoginPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle login logic here
-    console.log("Login attempt:", { email, password, rememberMe })
-  }
+    console.log('Login attempt:', { email, password, rememberMe });
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -48,7 +48,9 @@ export const  LoginPage=()=> {
             </div>
 
             <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
-            <CardDescription className="text-slate-400">Sign in to discover stories that feel right</CardDescription>
+            <CardDescription className="text-slate-400">
+              Sign in to discover stories that feel right
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -65,7 +67,7 @@ export const  LoginPage=()=> {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -81,10 +83,10 @@ export const  LoginPage=()=> {
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -106,7 +108,7 @@ export const  LoginPage=()=> {
                   <Checkbox
                     id="remember"
                     checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                    onCheckedChange={checked => setRememberMe(checked as boolean)}
                     className="border-slate-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
                   />
                   <Label htmlFor="remember" className="text-sm text-slate-300">
@@ -178,7 +180,10 @@ export const  LoginPage=()=> {
             {/* Sign Up Link */}
             <div className="text-center">
               <span className="text-slate-400">Don't have an account? </span>
-              <Link to="/signup" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+              <Link
+                to="/signup"
+                className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+              >
                 Sign up
               </Link>
             </div>
@@ -188,11 +193,11 @@ export const  LoginPage=()=> {
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-slate-500">
           <p>
-            By signing in, you agree to our{" "}
+            By signing in, you agree to our{' '}
             <Link to="/terms" className="text-purple-400 hover:text-purple-300">
               Terms of Service
-            </Link>{" "}
-            and{" "}
+            </Link>{' '}
+            and{' '}
             <Link to="/privacy" className="text-purple-400 hover:text-purple-300">
               Privacy Policy
             </Link>
@@ -200,5 +205,5 @@ export const  LoginPage=()=> {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

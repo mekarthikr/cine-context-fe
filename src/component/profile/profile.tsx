@@ -1,118 +1,125 @@
-import type React from "react"
 
-import { useState } from "react"
-// import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Camera, Edit3, Star, Trash2, Play, Bell, Shield, Palette } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Link } from "react-router"
-import { Label } from "../ui/label"
-import { Separator } from "../ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import { Textarea } from "../ui/textarea"
-import { Badge } from "../ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Switch } from "../ui/switch"
-
+import { useState } from 'react';
+import {
+  Eye,
+  User,
+  ArrowLeft,
+  Camera,
+  Edit3,
+  Star,
+  Trash2,
+  Play,
+  Bell,
+  Shield,
+  Palette,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Link } from 'react-router';
+import { Label } from '../ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Textarea } from '../ui/textarea';
+import { Badge } from '../ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Switch } from '../ui/switch';
 
 const watchlistMovies = [
   {
     id: 1,
-    title: "Dune: Part Two",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2024",
+    title: 'Dune: Part Two',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2024',
     rating: 4.6,
-    tags: ["Epic", "Sci-Fi", "Adventure"],
-    addedDate: "2024-01-15",
+    tags: ['Epic', 'Sci-Fi', 'Adventure'],
+    addedDate: '2024-01-15',
   },
   {
     id: 2,
-    title: "Past Lives",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2023",
+    title: 'Past Lives',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2023',
     rating: 4.4,
-    tags: ["Romance", "Melancholy", "Reflection"],
-    addedDate: "2024-01-10",
+    tags: ['Romance', 'Melancholy', 'Reflection'],
+    addedDate: '2024-01-10',
   },
   {
     id: 3,
-    title: "Everything Everywhere All at Once",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2022",
+    title: 'Everything Everywhere All at Once',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2022',
     rating: 4.5,
-    tags: ["Surreal", "Family", "Adventure"],
-    addedDate: "2024-01-08",
+    tags: ['Surreal', 'Family', 'Adventure'],
+    addedDate: '2024-01-08',
   },
-]
+];
 
 const watchHistory = [
   {
     id: 1,
-    title: "The Bear",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2022",
+    title: 'The Bear',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2022',
     rating: 4.8,
-    watchedDate: "2024-01-20",
+    watchedDate: '2024-01-20',
     yourRating: 5,
-    tags: ["Stress", "Kitchen", "Growth"],
+    tags: ['Stress', 'Kitchen', 'Growth'],
   },
   {
     id: 2,
-    title: "Aftersun",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2022",
+    title: 'Aftersun',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2022',
     rating: 4.3,
-    watchedDate: "2024-01-18",
+    watchedDate: '2024-01-18',
     yourRating: 4,
-    tags: ["Memory", "Father-Daughter", "Bittersweet"],
+    tags: ['Memory', 'Father-Daughter', 'Bittersweet'],
   },
   {
     id: 3,
-    title: "Top Gun: Maverick",
-    image: "/placeholder.svg?height=120&width=80",
-    year: "2022",
+    title: 'Top Gun: Maverick',
+    image: '/placeholder.svg?height=120&width=80',
+    year: '2022',
     rating: 4.4,
-    watchedDate: "2024-01-15",
+    watchedDate: '2024-01-15',
     yourRating: 4,
-    tags: ["Action", "Nostalgia", "Friendship"],
+    tags: ['Action', 'Nostalgia', 'Friendship'],
   },
-]
+];
 
 const moodPreferences = [
-  { mood: "Cozy Vibes", selected: true },
-  { mood: "Adventure", selected: true },
-  { mood: "Heartbreak Healing", selected: false },
-  { mood: "Self-Discovery", selected: true },
-  { mood: "Family Bonding", selected: true },
-  { mood: "Late Night Contemplation", selected: false },
-]
+  { mood: 'Cozy Vibes', selected: true },
+  { mood: 'Adventure', selected: true },
+  { mood: 'Heartbreak Healing', selected: false },
+  { mood: 'Self-Discovery', selected: true },
+  { mood: 'Family Bonding', selected: true },
+  { mood: 'Late Night Contemplation', selected: false },
+];
 
-export const ProfilePage=()=> {
-  const [activeTab, setActiveTab] = useState("overview")
-  const [isEditing, setIsEditing] = useState(false)
+export const ProfilePage = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "Alex Chen",
-    email: "alex.chen@email.com",
-    bio: "Film enthusiast who loves discovering hidden gems and emotional stories. Always looking for movies that capture the complexity of human relationships.",
-    location: "San Francisco, CA",
-    favoriteGenres: ["Drama", "Sci-Fi", "Romance"],
-    joinDate: "January 2024",
-  })
+    name: 'Alex Chen',
+    email: 'alex.chen@email.com',
+    bio: 'Film enthusiast who loves discovering hidden gems and emotional stories. Always looking for movies that capture the complexity of human relationships.',
+    location: 'San Francisco, CA',
+    favoriteGenres: ['Drama', 'Sci-Fi', 'Romance'],
+    joinDate: 'January 2024',
+  });
 
   const [notifications, setNotifications] = useState({
     newRecommendations: true,
     weeklyDigest: true,
     friendActivity: false,
     newReleases: true,
-  })
+  });
 
   const handleProfileUpdate = () => {
-    setIsEditing(false)
+    setIsEditing(false);
     // Handle profile update logic
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -151,9 +158,9 @@ export const ProfilePage=()=> {
                   <AvatarImage src="/placeholder.svg?height=128&width=128" alt={profileData.name} />
                   <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl">
                     {profileData.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
+                      .split(' ')
+                      .map(n => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -226,7 +233,9 @@ export const ProfilePage=()=> {
                             <Label className="text-slate-300">Bio</Label>
                             <Textarea
                               value={profileData.bio}
-                              onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                              onChange={e =>
+                                setProfileData({ ...profileData, bio: e.target.value })
+                              }
                               className="bg-slate-700 border-slate-600 text-white"
                               rows={3}
                             />
@@ -235,7 +244,9 @@ export const ProfilePage=()=> {
                             <Label className="text-slate-300">Location</Label>
                             <Input
                               value={profileData.location}
-                              onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                              onChange={e =>
+                                setProfileData({ ...profileData, location: e.target.value })
+                              }
                               className="bg-slate-700 border-slate-600 text-white"
                             />
                           </div>
@@ -261,10 +272,16 @@ export const ProfilePage=()=> {
                         <div className="space-y-4">
                           <p className="text-slate-300">{profileData.bio}</p>
                           <div>
-                            <h4 className="text-sm font-medium text-slate-400 mb-2">Favorite Genres</h4>
+                            <h4 className="text-sm font-medium text-slate-400 mb-2">
+                              Favorite Genres
+                            </h4>
                             <div className="flex flex-wrap gap-2">
-                              {profileData.favoriteGenres.map((genre) => (
-                                <Badge key={genre} variant="secondary" className="bg-purple-500/20 text-purple-300">
+                              {profileData.favoriteGenres.map(genre => (
+                                <Badge
+                                  key={genre}
+                                  variant="secondary"
+                                  className="bg-purple-500/20 text-purple-300"
+                                >
                                   {genre}
                                 </Badge>
                               ))}
@@ -282,13 +299,13 @@ export const ProfilePage=()=> {
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {moodPreferences.map((pref) => (
+                        {moodPreferences.map(pref => (
                           <div
                             key={pref.mood}
                             className={`p-3 rounded-lg border transition-colors cursor-pointer ${
                               pref.selected
-                                ? "bg-purple-500/20 border-purple-500 text-purple-300"
-                                : "bg-slate-700 border-slate-600 text-slate-400 hover:border-slate-500"
+                                ? 'bg-purple-500/20 border-purple-500 text-purple-300'
+                                : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-slate-500'
                             }`}
                           >
                             <div className="text-sm font-medium">{pref.mood}</div>
@@ -309,12 +326,12 @@ export const ProfilePage=()=> {
                   </div>
 
                   <div className="grid gap-4">
-                    {watchlistMovies.map((movie) => (
+                    {watchlistMovies.map(movie => (
                       <Card key={movie.id} className="bg-slate-800 border-slate-700">
                         <CardContent className="p-4">
                           <div className="flex gap-4">
                             <img
-                              src={movie.image || "/placeholder.svg"}
+                              src={movie.image || '/placeholder.svg'}
                               alt={movie.title}
                               className="w-16 h-24 object-cover rounded"
                             />
@@ -329,13 +346,17 @@ export const ProfilePage=()=> {
                                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                                     <span className="text-sm text-slate-300">{movie.rating}</span>
                                   </div>
-                                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-red-400">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-slate-400 hover:text-red-400"
+                                  >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {movie.tags.map((tag) => (
+                                {movie.tags.map(tag => (
                                   <Badge
                                     key={tag}
                                     variant="secondary"
@@ -370,12 +391,12 @@ export const ProfilePage=()=> {
                   </div>
 
                   <div className="grid gap-4">
-                    {watchHistory.map((movie) => (
+                    {watchHistory.map(movie => (
                       <Card key={movie.id} className="bg-slate-800 border-slate-700">
                         <CardContent className="p-4">
                           <div className="flex gap-4">
                             <img
-                              src={movie.image || "/placeholder.svg"}
+                              src={movie.image || '/placeholder.svg'}
                               alt={movie.title}
                               className="w-16 h-24 object-cover rounded"
                             />
@@ -393,7 +414,9 @@ export const ProfilePage=()=> {
                                         <Star
                                           key={i}
                                           className={`h-3 w-3 ${
-                                            i < movie.yourRating ? "fill-yellow-400 text-yellow-400" : "text-slate-600"
+                                            i < movie.yourRating
+                                              ? 'fill-yellow-400 text-yellow-400'
+                                              : 'text-slate-600'
                                           }`}
                                         />
                                       ))}
@@ -406,7 +429,7 @@ export const ProfilePage=()=> {
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {movie.tags.map((tag) => (
+                                {movie.tags.map(tag => (
                                   <Badge
                                     key={tag}
                                     variant="secondary"
@@ -417,8 +440,14 @@ export const ProfilePage=()=> {
                                 ))}
                               </div>
                               <div className="flex justify-between items-center">
-                                <p className="text-xs text-slate-500">Watched {movie.watchedDate}</p>
-                                <Button variant="outline" size="sm" className="border-slate-600 text-slate-300">
+                                <p className="text-xs text-slate-500">
+                                  Watched {movie.watchedDate}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-slate-600 text-slate-300"
+                                >
                                   <Eye className="h-4 w-4 mr-1" />
                                   Rewatch
                                 </Button>
@@ -447,7 +476,7 @@ export const ProfilePage=()=> {
                           <Label className="text-slate-300">Name</Label>
                           <Input
                             value={profileData.name}
-                            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                            onChange={e => setProfileData({ ...profileData, name: e.target.value })}
                             className="bg-slate-700 border-slate-600 text-white"
                           />
                         </div>
@@ -455,7 +484,9 @@ export const ProfilePage=()=> {
                           <Label className="text-slate-300">Email</Label>
                           <Input
                             value={profileData.email}
-                            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                            onChange={e =>
+                              setProfileData({ ...profileData, email: e.target.value })
+                            }
                             className="bg-slate-700 border-slate-600 text-white"
                           />
                         </div>
@@ -476,17 +507,23 @@ export const ProfilePage=()=> {
                       {Object.entries(notifications).map(([key, value]) => (
                         <div key={key} className="flex items-center justify-between">
                           <div>
-                            <Label className="text-slate-300 capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</Label>
+                            <Label className="text-slate-300 capitalize">
+                              {key.replace(/([A-Z])/g, ' $1').trim()}
+                            </Label>
                             <p className="text-sm text-slate-500">
-                              {key === "newRecommendations" && "Get notified about new movie recommendations"}
-                              {key === "weeklyDigest" && "Receive weekly summary of trending content"}
-                              {key === "friendActivity" && "See what your friends are watching"}
-                              {key === "newReleases" && "Get alerts about new movie releases"}
+                              {key === 'newRecommendations' &&
+                                'Get notified about new movie recommendations'}
+                              {key === 'weeklyDigest' &&
+                                'Receive weekly summary of trending content'}
+                              {key === 'friendActivity' && 'See what your friends are watching'}
+                              {key === 'newReleases' && 'Get alerts about new movie releases'}
                             </p>
                           </div>
                           <Switch
                             checked={value}
-                            onCheckedChange={(checked) => setNotifications({ ...notifications, [key]: checked })}
+                            onCheckedChange={checked =>
+                              setNotifications({ ...notifications, [key]: checked })
+                            }
                             className="data-[state=checked]:bg-purple-500"
                           />
                         </div>
@@ -523,7 +560,9 @@ export const ProfilePage=()=> {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-slate-300">Show Watch History</Label>
-                          <p className="text-sm text-slate-500">Let others see what you've watched</p>
+                          <p className="text-sm text-slate-500">
+                            Let others see what you've watched
+                          </p>
                         </div>
                         <Switch className="data-[state=checked]:bg-purple-500" />
                       </div>
@@ -573,5 +612,5 @@ export const ProfilePage=()=> {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

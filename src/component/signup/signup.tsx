@@ -1,15 +1,15 @@
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
+import { useState } from 'react';
 // import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Link } from "react-router"
-import { Label } from "../ui/label"
-import { Separator } from "../ui/separator"
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Link } from 'react-router';
+import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
 // import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 // import { Label } from "@/components/ui/label"
@@ -17,27 +17,27 @@ import { Separator } from "../ui/separator"
 // import { Separator } from "@/components/ui/separator"
 // import { Checkbox } from "@/components/ui/checkbox"
 
-export const  SignUpPage=()=> {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+export const SignUpPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
     agreeToTerms: false,
     subscribeNewsletter: false,
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle signup logic here
-    console.log("Signup attempt:", formData)
-  }
+    console.log('Signup attempt:', formData);
+  };
 
   const updateFormData = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -83,7 +83,7 @@ export const  SignUpPage=()=> {
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.name}
-                    onChange={(e) => updateFormData("name", e.target.value)}
+                    onChange={e => updateFormData('name', e.target.value)}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -102,7 +102,7 @@ export const  SignUpPage=()=> {
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
-                    onChange={(e) => updateFormData("email", e.target.value)}
+                    onChange={e => updateFormData('email', e.target.value)}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -118,10 +118,10 @@ export const  SignUpPage=()=> {
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Create a password"
                     value={formData.password}
-                    onChange={(e) => updateFormData("password", e.target.value)}
+                    onChange={e => updateFormData('password', e.target.value)}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -146,10 +146,10 @@ export const  SignUpPage=()=> {
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={(e) => updateFormData("confirmPassword", e.target.value)}
+                    onChange={e => updateFormData('confirmPassword', e.target.value)}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -160,7 +160,11 @@ export const  SignUpPage=()=> {
                     className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -171,22 +175,22 @@ export const  SignUpPage=()=> {
                   <Checkbox
                     id="terms"
                     checked={formData.agreeToTerms}
-                    onCheckedChange={(checked) => updateFormData("agreeToTerms", checked as boolean)}
+                    onCheckedChange={checked => updateFormData('agreeToTerms', checked as boolean)}
                     className="border-slate-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 mt-0.5"
                     required
                   />
                   <Label htmlFor="terms" className="text-sm text-slate-300 leading-relaxed">
-                    I agree to the{" "}
+                    I agree to the{' '}
                     <Link to="/terms" className="text-purple-400 hover:text-purple-300">
                       Terms of Service
-                    </Link>{" "}
-                    and{" "}
+                    </Link>{' '}
+                    and{' '}
                     <Link to="/privacy" className="text-purple-400 hover:text-purple-300">
                       Privacy Policy
                     </Link>
                   </Label>
                 </div>
-{/* 
+                {/* 
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="newsletter"
@@ -258,7 +262,10 @@ export const  SignUpPage=()=> {
             {/* Sign In Link */}
             <div className="text-center">
               <span className="text-slate-400">Already have an account? </span>
-              <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+              <Link
+                to="/login"
+                className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+              >
                 Sign in
               </Link>
             </div>
@@ -266,5 +273,5 @@ export const  SignUpPage=()=> {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};

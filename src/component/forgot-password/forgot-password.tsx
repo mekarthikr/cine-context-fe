@@ -1,26 +1,24 @@
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
+import { useState } from 'react';
 // import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Link } from "react-router"
-import { Label } from "../ui/label"
-import { Separator } from "../ui/separator"
+import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Link } from 'react-router';
+import { Label } from '../ui/label';
 
-export const ForgotPasswordPage=()=> {
-  const [email, setEmail] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
+export const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle forgot password logic here
-    console.log("Password reset request for:", email)
-    setIsSubmitted(true)
-  }
+    console.log('Password reset request for:', email);
+    setIsSubmitted(true);
+  };
 
   if (isSubmitted) {
     return (
@@ -47,7 +45,9 @@ export const ForgotPasswordPage=()=> {
 
             <CardContent className="space-y-6">
               <div className="text-center space-y-4">
-                <p className="text-sm text-slate-400">Didn't receive the email? Check your spam folder or try again.</p>
+                <p className="text-sm text-slate-400">
+                  Didn't receive the email? Check your spam folder or try again.
+                </p>
 
                 <Button
                   onClick={() => setIsSubmitted(false)}
@@ -68,7 +68,7 @@ export const ForgotPasswordPage=()=> {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -115,7 +115,7 @@ export const ForgotPasswordPage=()=> {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -134,7 +134,10 @@ export const ForgotPasswordPage=()=> {
             {/* Back to Login */}
             <div className="text-center">
               <span className="text-slate-400">Remember your password? </span>
-              <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+              <Link
+                to="/login"
+                className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+              >
                 Sign in
               </Link>
             </div>
@@ -142,5 +145,5 @@ export const ForgotPasswordPage=()=> {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
