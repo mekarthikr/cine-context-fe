@@ -2,14 +2,14 @@ import type React from 'react';
 
 import { useState } from 'react';
 // import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Play } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
+import { Checkbox } from '../../ui/checkbox';
 import { Link } from 'react-router';
-import { Label } from '../ui/label';
-import { Separator } from '../ui/separator';
+import { Label } from '../../ui/label';
+import { Separator } from '../../ui/separator';
 
 export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +43,10 @@ export const LoginPage = () => {
           <CardHeader className="text-center pb-6">
             {/* Logo */}
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="h-10 w-10 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+              {/* <div className="h-10 w-10 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div> */}
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
+                <Play className="h-5 w-5 text-white" />
+              </div>
               <span className="text-2xl font-bold text-white">CineContext</span>
             </div>
 

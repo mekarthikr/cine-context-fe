@@ -3,11 +3,11 @@ import type React from 'react';
 import { useState } from 'react';
 // import Link from "next/link"
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
 import { Link } from 'react-router';
-import { Label } from '../ui/label';
+import { Label } from '../../ui/label';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');

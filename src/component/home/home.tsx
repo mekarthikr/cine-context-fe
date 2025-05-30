@@ -1,17 +1,23 @@
 import { Search, User, Play, Star, Clock, Filter } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
-import { Input } from '../ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Checkbox } from '../ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Badge } from '../ui/badge';
+// import { Button } from '../../ui/button';
+// import { Card, CardContent } from '../../ui/card';
+// import { Input } from '../../ui/input';
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from '../../ui/dropdown-menu';
+// import { Checkbox } from '../../ui/checkbox';
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Badge } from '../../ui/badge';
 import { useEffect, useState, type ReactNode } from 'react';
+import { Button } from '../../ui/button';
+import { Card, CardContent } from '../../ui/card';
+import { Input } from '../../ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
+import { Checkbox } from '../../ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
 const API_KEY = '452777385104bb1696e163a7da57901f';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w780';

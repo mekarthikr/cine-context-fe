@@ -13,17 +13,17 @@ import {
   Shield,
   Palette,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
 import { Link } from 'react-router';
-import { Label } from '../ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Textarea } from '../ui/textarea';
-import { Badge } from '../ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Switch } from '../ui/switch';
+import { Label } from '../../ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
+import { Textarea } from '../../ui/textarea';
+import { Badge } from '../../ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Switch } from '../../ui/switch';
 
 const watchlistMovies = [
   {
@@ -141,7 +141,11 @@ export const ProfilePage = () => {
               </Link>
 
               <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                {/* <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                 */}
+                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
+                <Play className="h-5 w-5 text-white" />
+              </div>
                 <span className="text-xl font-bold">CineContext</span>
               </div>
             </div>
