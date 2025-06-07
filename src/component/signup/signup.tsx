@@ -86,7 +86,9 @@ export const SignUpPage = () => {
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.name}
-                    onChange={e => updateFormData('name', e.target.value)}
+                    onChange={e => {
+                      updateFormData('name', e.target.value);
+                    }}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -105,7 +107,9 @@ export const SignUpPage = () => {
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
-                    onChange={e => updateFormData('email', e.target.value)}
+                    onChange={e => {
+                      updateFormData('email', e.target.value);
+                    }}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -124,7 +128,9 @@ export const SignUpPage = () => {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Create a password"
                     value={formData.password}
-                    onChange={e => updateFormData('password', e.target.value)}
+                    onChange={e => {
+                      updateFormData('password', e.target.value);
+                    }}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -133,7 +139,9 @@ export const SignUpPage = () => {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
@@ -152,7 +160,9 @@ export const SignUpPage = () => {
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={e => updateFormData('confirmPassword', e.target.value)}
+                    onChange={e => {
+                      updateFormData('confirmPassword', e.target.value);
+                    }}
                     className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
@@ -161,7 +171,9 @@ export const SignUpPage = () => {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    onClick={() => {
+                      setShowConfirmPassword(!showConfirmPassword);
+                    }}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -178,7 +190,9 @@ export const SignUpPage = () => {
                   <Checkbox
                     id="terms"
                     checked={formData.agreeToTerms}
-                    onCheckedChange={checked => updateFormData('agreeToTerms', checked as boolean)}
+                    onCheckedChange={checked => {
+                      updateFormData('agreeToTerms', checked as boolean);
+                    }}
                     className="border-slate-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 mt-0.5"
                     required
                   />

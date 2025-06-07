@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import {Link, useParams} from "react-router"
+import { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router';
 import {
   ArrowLeft,
   Play,
@@ -10,12 +10,12 @@ import {
   Clock,
   Calendar,
   Users,
-  Award,
+  // Award,
   Bookmark,
   ExternalLink,
   Loader2,
   Badge,
-} from "lucide-react"
+} from 'lucide-react';
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 // import type { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
 // import { Button } from "../../ui/button"
@@ -23,10 +23,10 @@ import {
 // import { Avatar, AvatarFallback } from "../../ui/avatar"
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 // import { Button } from "../../ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card"
-import { Avatar, AvatarFallback } from "../../ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
-import { Button } from "../../ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { Avatar, AvatarFallback } from '../../ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
+import { Button } from '../../ui/button';
 // import { Button } from "@/components/ui/button"
 // import { Badge } from "@/components/ui/badge"
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,271 +34,269 @@ import { Button } from "../../ui/button"
 // import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 // TMDB API Configuration
-const TMDB_API_KEY = '452777385104bb1696e163a7da57901f'
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
-const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
+const TMDB_API_KEY = '452777385104bb1696e163a7da57901f';
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+// const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
 const movieData = {
   id: 1,
-  title: "Eternal Sunshine of the Spotless Mind",
+  title: 'Eternal Sunshine of the Spotless Mind',
   year: 2004,
   runtime: 108,
   rating: 4.3,
   userRating: null,
-  genres: ["Drama", "Romance", "Sci-Fi"],
-  director: "Michel Gondry",
-  writers: ["Charlie Kaufman", "Michel Gondry", "Pierre Bismuth"],
+  genres: ['Drama', 'Romance', 'Sci-Fi'],
+  director: 'Michel Gondry',
+  writers: ['Charlie Kaufman', 'Michel Gondry', 'Pierre Bismuth'],
   synopsis:
-    "When their relationship turns sour, a couple undergoes a medical procedure to have each other erased from their memories forever. But it is only through the process of loss that they discover what they had to begin with.",
+    'When their relationship turns sour, a couple undergoes a medical procedure to have each other erased from their memories forever. But it is only through the process of loss that they discover what they had to begin with.',
   fullSynopsis:
-    "Joel Barish, heartbroken that his girlfriend underwent a procedure to erase him from her memory, decides to do the same. However, as he watches his memories of her fade away, he realises that he still loves her, and may be too late to correct his mistake. A story about memory, love, and the pain of letting go.",
-  posterImage: "/placeholder.svg?height=600&width=400",
-  backdropImage: "/placeholder.svg?height=800&width=1200",
-  trailerUrl: "https://youtube.com/watch?v=trailer",
-  releaseDate: "March 19, 2004",
-  budget: "$20 million",
-  boxOffice: "$74.0 million",
-  language: "English",
-  country: "USA",
-  awards: ["Academy Award for Best Original Screenplay", "BAFTA Award for Best Editing"],
-  moodTags: ["Melancholy", "Introspective", "Bittersweet", "Mind-bending", "Romantic"],
-  watchProviders: ["Netflix", "Amazon Prime", "Hulu"],
+    'Joel Barish, heartbroken that his girlfriend underwent a procedure to erase him from her memory, decides to do the same. However, as he watches his memories of her fade away, he realises that he still loves her, and may be too late to correct his mistake. A story about memory, love, and the pain of letting go.',
+  posterImage: '/placeholder.svg?height=600&width=400',
+  backdropImage: '/placeholder.svg?height=800&width=1200',
+  trailerUrl: 'https://youtube.com/watch?v=trailer',
+  releaseDate: 'March 19, 2004',
+  budget: '$20 million',
+  boxOffice: '$74.0 million',
+  language: 'English',
+  country: 'USA',
+  awards: ['Academy Award for Best Original Screenplay', 'BAFTA Award for Best Editing'],
+  moodTags: ['Melancholy', 'Introspective', 'Bittersweet', 'Mind-bending', 'Romantic'],
+  watchProviders: ['Netflix', 'Amazon Prime', 'Hulu'],
   cast: [
     {
       id: 1,
-      name: "Jim Carrey",
-      character: "Joel Barish",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["The Truman Show", "Dumb and Dumber"],
+      name: 'Jim Carrey',
+      character: 'Joel Barish',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['The Truman Show', 'Dumb and Dumber'],
     },
     {
       id: 2,
-      name: "Kate Winslet",
-      character: "Clementine Kruczynski",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["Titanic", "The Reader"],
+      name: 'Kate Winslet',
+      character: 'Clementine Kruczynski',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['Titanic', 'The Reader'],
     },
     {
       id: 3,
-      name: "Kirsten Dunst",
-      character: "Mary",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["Spider-Man", "Marie Antoinette"],
+      name: 'Kirsten Dunst',
+      character: 'Mary',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['Spider-Man', 'Marie Antoinette'],
     },
     {
       id: 4,
-      name: "Mark Ruffalo",
-      character: "Stan",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["Avengers", "Spotlight"],
+      name: 'Mark Ruffalo',
+      character: 'Stan',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['Avengers', 'Spotlight'],
     },
     {
       id: 5,
-      name: "Elijah Wood",
-      character: "Patrick",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["Lord of the Rings", "Sin City"],
+      name: 'Elijah Wood',
+      character: 'Patrick',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['Lord of the Rings', 'Sin City'],
     },
     {
       id: 6,
-      name: "Tom Wilkinson",
-      character: "Dr. Howard Mierzwiak",
-      image: "/placeholder.svg?height=200&width=150",
-      knownFor: ["The Full Monty", "Michael Clayton"],
+      name: 'Tom Wilkinson',
+      character: 'Dr. Howard Mierzwiak',
+      image: '/placeholder.svg?height=200&width=150',
+      knownFor: ['The Full Monty', 'Michael Clayton'],
     },
   ],
   crew: [
-    { name: "Michel Gondry", role: "Director" },
-    { name: "Charlie Kaufman", role: "Writer" },
-    { name: "Anthony Bregman", role: "Producer" },
-    { name: "Ellen Kuras", role: "Cinematographer" },
-    { name: "Valdís Óskarsdóttir", role: "Editor" },
+    { name: 'Michel Gondry', role: 'Director' },
+    { name: 'Charlie Kaufman', role: 'Writer' },
+    { name: 'Anthony Bregman', role: 'Producer' },
+    { name: 'Ellen Kuras', role: 'Cinematographer' },
+    { name: 'Valdís Óskarsdóttir', role: 'Editor' },
   ],
   reviews: [
     {
       id: 1,
-      author: "Sarah M.",
+      author: 'Sarah M.',
       rating: 5,
       text: "A masterpiece that explores memory and love in the most beautiful way. Jim Carrey's performance is incredible.",
-      date: "2024-01-15",
+      date: '2024-01-15',
       helpful: 24,
     },
     {
       id: 2,
-      author: "Mike R.",
+      author: 'Mike R.',
       rating: 4,
-      text: "Visually stunning and emotionally complex. The non-linear narrative keeps you engaged throughout.",
-      date: "2024-01-10",
+      text: 'Visually stunning and emotionally complex. The non-linear narrative keeps you engaged throughout.',
+      date: '2024-01-10',
       helpful: 18,
     },
   ],
-}
-
+};
 
 // Types for TMDB API responses
 interface TMDBMovie {
-  id: number
-  title: string
-  overview: string
-  release_date: string
-  runtime?: number
-  vote_average: number
-  vote_count: number
-  genres: { id: number; name: string }[]
-  poster_path: string
-  backdrop_path: string
-  production_countries: { name: string }[]
-  spoken_languages: { english_name: string }[]
-  budget: number
-  revenue: number
-  tagline: string
-  status: string
+  id: number;
+  title: string;
+  overview: string;
+  release_date: string;
+  runtime?: number;
+  vote_average: number;
+  vote_count: number;
+  genres: Array<{ id: number; name: string }>;
+  poster_path: string;
+  backdrop_path: string;
+  production_countries: Array<{ name: string }>;
+  spoken_languages: Array<{ english_name: string }>;
+  budget: number;
+  revenue: number;
+  tagline: string;
+  status: string;
 }
 
 interface TMDBCredits {
-  cast: {
-    id: number
-    name: string
-    character: string
-    profile_path: string
-    known_for_department: string
-  }[]
-  crew: {
-    id: number
-    name: string
-    job: string
-    department: string
-    profile_path: string
-  }[]
+  cast: Array<{
+    id: number;
+    name: string;
+    character: string;
+    profile_path: string;
+    known_for_department: string;
+  }>;
+  crew: Array<{
+    id: number;
+    name: string;
+    job: string;
+    department: string;
+    profile_path: string;
+  }>;
 }
 
 interface TMDBVideos {
-  results: {
-    id: string
-    key: string
-    name: string
-    site: string
-    type: string
-    official: boolean
-  }[]
+  results: Array<{
+    id: string;
+    key: string;
+    name: string;
+    site: string;
+    type: string;
+    official: boolean;
+  }>;
 }
 
 interface TMDBReviews {
-  results: {
-    id: string
-    author: string
+  results: Array<{
+    id: string;
+    author: string;
     author_details: {
-      rating?: number
-      avatar_path?: string
-    }
-    content: string
-    created_at: string
-  }[]
+      rating?: number;
+      avatar_path?: string;
+    };
+    content: string;
+    created_at: string;
+  }>;
 }
 
 interface TMDBWatchProviders {
-  results: {
-    [country: string]: {
-      flatrate?: { provider_name: string; logo_path: string }[]
-      rent?: { provider_name: string; logo_path: string }[]
-      buy?: { provider_name: string; logo_path: string }[]
+  results: Record<
+    string,
+    {
+      flatrate?: Array<{ provider_name: string; logo_path: string }>;
+      rent?: Array<{ provider_name: string; logo_path: string }>;
+      buy?: Array<{ provider_name: string; logo_path: string }>;
     }
-  }
+  >;
 }
 
 interface TMDBSimilarMovies {
-  results: {
-    id: number
-    title: string
-    poster_path: string
-    release_date: string
-    vote_average: number
-    genre_ids: number[]
-  }[]
+  results: Array<{
+    id: number;
+    title: string;
+    poster_path: string;
+    release_date: string;
+    vote_average: number;
+    genre_ids: number[];
+  }>;
 }
 
 // API Functions
 const tmdbApi = {
   getMovie: async (movieId: string): Promise<TMDBMovie> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
-    )
-    if (!response.ok) throw new Error('Failed to fetch movie details')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch movie details');
+    return await response.json();
   },
 
   getCredits: async (movieId: string): Promise<TMDBCredits> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/credits?api_key=${TMDB_API_KEY}&language=en-US`
-    )
-    if (!response.ok) throw new Error('Failed to fetch credits')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}/credits?api_key=${TMDB_API_KEY}&language=en-US`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch credits');
+    return await response.json();
   },
 
   getVideos: async (movieId: string): Promise<TMDBVideos> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/videos?api_key=${TMDB_API_KEY}&language=en-US`
-    )
-    if (!response.ok) throw new Error('Failed to fetch videos')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}/videos?api_key=${TMDB_API_KEY}&language=en-US`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch videos');
+    return await response.json();
   },
 
   getReviews: async (movieId: string): Promise<TMDBReviews> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}&language=en-US&page=1`
-    )
-    if (!response.ok) throw new Error('Failed to fetch reviews')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}&language=en-US&page=1`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch reviews');
+    return await response.json();
   },
 
   getWatchProviders: async (movieId: string): Promise<TMDBWatchProviders> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/watch/providers?api_key=${TMDB_API_KEY}`
-    )
-    if (!response.ok) throw new Error('Failed to fetch watch providers')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}/watch/providers?api_key=${TMDB_API_KEY}`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch watch providers');
+    return await response.json();
   },
 
   getSimilarMovies: async (movieId: string): Promise<TMDBSimilarMovies> => {
     const response = await fetch(
-      `${TMDB_BASE_URL}/movie/${movieId}/similar?api_key=${TMDB_API_KEY}&language=en-US&page=1`
-    )
-    if (!response.ok) throw new Error('Failed to fetch similar movies')
-    return response.json()
+      `${TMDB_BASE_URL}/movie/${movieId}/similar?api_key=${TMDB_API_KEY}&language=en-US&page=1`,
+    );
+    if (!response.ok) throw new Error('Failed to fetch similar movies');
+    return await response.json();
   },
-}
+};
 
 // Utility functions
-const formatCurrency = (amount: number) => {
-  if (amount === 0) return 'N/A'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
+// const formatCurrency = (amount: number) => {
+//   if (amount === 0) return 'N/A';
+//   return new Intl.NumberFormat('en-US', {
+//     style: 'currency',
+//     currency: 'USD',
+//     maximumFractionDigits: 0,
+//   }).format(amount);
+// };
 
 const formatDate = (dateString: string) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
-}
+  });
+};
 
-const getImageUrl = (path: string, size: string = 'w500') => {
-  if (!path) return '/placeholder.svg?height=600&width=400'
-  return `${TMDB_IMAGE_BASE_URL}/${size}${path}`
-}
+// const getImageUrl = (path: string, size = 'w500') => {
+//   if (!path) return '/placeholder.svg?height=600&width=400';
+//   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
+// };
 
-const getRating = (voteAverage: number) => {
-  return Math.round(voteAverage * 10) / 10
-}
+const getRating = (voteAverage: number) => Math.round(voteAverage * 10) / 10;
 
 // Generate mood tags based on genres
-const generateMoodTags = (genres: { name: string }[]) => {
-  const moodMap: { [key: string]: string[] } = {
+const generateMoodTags = (genres: Array<{ name: string }>) => {
+  const moodMap: Record<string, string[]> = {
     Drama: ['Emotional', 'Thought-provoking'],
     Romance: ['Romantic', 'Heartwarming'],
     'Science Fiction': ['Mind-bending', 'Futuristic'],
@@ -309,48 +307,47 @@ const generateMoodTags = (genres: { name: string }[]) => {
     Mystery: ['Intriguing', 'Puzzling'],
     Fantasy: ['Magical', 'Escapist'],
     Documentary: ['Educational', 'Eye-opening'],
-  }
+  };
 
-  const moods = new Set<string>()
+  const moods = new Set<string>();
   genres.forEach(genre => {
-    const genreMoods = moodMap[genre.name] || []
-    genreMoods.forEach(mood => moods.add(mood))
-  })
+    const genreMoods = moodMap[genre.name] || [];
+    genreMoods.forEach(mood => moods.add(mood));
+  });
 
-  return Array.from(moods).slice(0, 5) // Limit to 5 mood tags
-}
+  return Array.from(moods).slice(0, 5); // Limit to 5 mood tags
+};
 
-interface MovieDetailsPageProps {
-  movieId?: string
-}
+// interface MovieDetailsPageProps {
+//   movieId?: string;
+// }
 
 export default function MovieDetailsPage() {
   // State
-  const {movieId}=useParams()
-  const [movie, setMovie] = useState<TMDBMovie | null>(null)
-  const [credits, setCredits] = useState<TMDBCredits | null>(null)
-  const [videos, setVideos] = useState<TMDBVideos | null>(null)
-  const [reviews, setReviews] = useState<TMDBReviews | null>(null)
-  const [watchProviders, setWatchProviders] = useState<TMDBWatchProviders | null>(null)
-  const [similarMovies, setSimilarMovies] = useState<TMDBSimilarMovies | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  
-  const [activeTab, setActiveTab] = useState("overview")
-  const [isInWatchlist, setIsInWatchlist] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
-  const [userRating, setUserRating] = useState(0)
+  const { movieId } = useParams();
+  const [movie, setMovie] = useState<TMDBMovie | null>(null);
+  const [credits, setCredits] = useState<TMDBCredits | null>(null);
+  const [videos, setVideos] = useState<TMDBVideos | null>(null);
+  const [_, setReviews] = useState<TMDBReviews | null>(null);
+  const [watchProviders, setWatchProviders] = useState<TMDBWatchProviders | null>(null);
+  const [similarMovies, setSimilarMovies] = useState<TMDBSimilarMovies | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
-const api=`https://api.themoviedb.org/3/movie/${movieId}/images?api_key=YOUR_API_KEY&include_image_language=en`
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [userRating, setUserRating] = useState(0);
 
+  // const api = `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=YOUR_API_KEY&include_image_language=en`;
 
   // Load data on component mount
   useEffect(() => {
     const loadMovieData = async () => {
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
         // Load all movie data in parallel
         const [
@@ -359,71 +356,72 @@ const api=`https://api.themoviedb.org/3/movie/${movieId}/images?api_key=YOUR_API
           videosData,
           reviewsData,
           watchProvidersData,
-          similarMoviesData
+          similarMoviesData,
         ] = await Promise.all([
-          tmdbApi.getMovie(movieId),
-          tmdbApi.getCredits(movieId),
-          tmdbApi.getVideos(movieId),
-          tmdbApi.getReviews(movieId),
-          tmdbApi.getWatchProviders(movieId),
-          tmdbApi.getSimilarMovies(movieId),
-        ])
+          tmdbApi.getMovie(movieId as string),
+          tmdbApi.getCredits(movieId as string),
+          tmdbApi.getVideos(movieId as string),
+          tmdbApi.getReviews(movieId as string),
+          tmdbApi.getWatchProviders(movieId as string),
+          tmdbApi.getSimilarMovies(movieId as string),
+        ]);
 
-        setMovie(movieData)
-        setCredits(creditsData)
-        setVideos(videosData)
-        setReviews(reviewsData)
-        setWatchProviders(watchProvidersData)
-        setSimilarMovies(similarMoviesData)
+        setMovie(movieData);
+        setCredits(creditsData);
+        setVideos(videosData);
+        setReviews(reviewsData);
+        setWatchProviders(watchProvidersData);
+        setSimilarMovies(similarMoviesData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadMovieData()
-  }, [movieId])
+    loadMovieData();
+  }, [movieId]);
 
   const handleRating = (rating: number) => {
-    setUserRating(rating)
-  }
+    setUserRating(rating);
+  };
 
   const getTrailerUrl = () => {
     const trailer = videos?.results.find(
-      video => video.site === 'YouTube' && 
-      (video.type === 'Trailer' || video.type === 'Teaser') &&
-      video.official
-    )
-    return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null
-  }
+      video =>
+        video.site === 'YouTube' &&
+        (video.type === 'Trailer' || video.type === 'Teaser') &&
+        video.official,
+    );
+    return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+  };
 
-  const getDirector = () => {
-    return credits?.crew.find(person => person.job === 'Director')?.name || 'N/A'
-  }
+  const getDirector = () => credits?.crew.find(person => person.job === 'Director')?.name || 'N/A';
 
   const getWriters = () => {
-    const writers = credits?.crew.filter(person => 
-      person.job === 'Writer' || person.job === 'Screenplay' || person.job === 'Story'
-    ) || []
-    return writers.map(writer => writer.name).slice(0, 3) // Limit to 3 writers
-  }
+    const writers =
+      credits?.crew.filter(
+        person => person.job === 'Writer' || person.job === 'Screenplay' || person.job === 'Story',
+      ) || [];
+    return writers.map(writer => writer.name).slice(0, 3); // Limit to 3 writers
+  };
 
   const getWatchProvidersList = () => {
-    const countryProviders = watchProviders?.results?.US || watchProviders?.results?.IN || {}
+    const countryProviders = watchProviders?.results?.US || watchProviders?.results?.IN || {};
     const providers = [
       ...(countryProviders.flatrate || []),
       ...(countryProviders.rent || []),
-      ...(countryProviders.buy || [])
-    ]
-    
+      ...(countryProviders.buy || []),
+    ];
+
     // Remove duplicates
-    const uniqueProviders = providers.filter((provider, index, self) => 
-      index === self.findIndex(p => p.provider_name === provider.provider_name)
-    )
-    
-    return uniqueProviders.slice(0, 6) // Limit to 6 providers
-  }
+    const uniqueProviders = providers.filter(
+      (provider, index, self) =>
+        index === self.findIndex(p => p.provider_name === provider.provider_name),
+    );
+
+    return uniqueProviders.slice(0, 6); // Limit to 6 providers
+  };
 
   if (loading) {
     return (
@@ -433,7 +431,7 @@ const api=`https://api.themoviedb.org/3/movie/${movieId}/images?api_key=YOUR_API
           <span>Loading movie details...</span>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !movie) {
@@ -442,38 +440,42 @@ const api=`https://api.themoviedb.org/3/movie/${movieId}/images?api_key=YOUR_API
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Error Loading Movie</h1>
           <p className="text-slate-400">{error || 'Movie not found'}</p>
-          <Button className="mt-4" onClick={() => window.location.reload()}>
+          <Button
+            className="mt-4"
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
             Try Again
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
-  const moodTags = generateMoodTags(movie.genres)
-  const mainCast = credits?.cast.slice(0, 6) || []
+  const moodTags = generateMoodTags(movie.genres);
+  const mainCast = credits?.cast.slice(0, 6) || [];
   const keyCrewMembers = [
     { name: getDirector(), role: 'Director' },
     ...getWriters().map(writer => ({ name: writer, role: 'Writer' })),
-    ...credits?.crew.filter(person => 
-      ['Producer', 'Cinematographer', 'Editor', 'Music'].includes(person.job)
-    ).slice(0, 4).map(person => ({ name: person.name, role: person.job })) || []
-  ].slice(0, 8)
+    ...(credits?.crew
+      .filter(person => ['Producer', 'Cinematographer', 'Editor', 'Music'].includes(person.job))
+      .slice(0, 4)
+      .map(person => ({ name: person.name, role: person.job })) || []),
+  ].slice(0, 8);
 
   // helpers/tmdb.ts
-const getImageUrl = (path: string, size: string = 'original') =>
-  `https://image.tmdb.org/t/p/${size}${path}`;
+  const getImageUrl = (path: string, size = 'original') =>
+    `https://image.tmdb.org/t/p/${size}${path}`;
 
-const fetchMovieLogo = async (movieId: number) => {
-  const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=${TMDB_API_KEY}&include_image_language=en,null`
-  );
-  const data = await res.json();
-  const logo = data.logos?.[0]; // Pick the first logo
-  return logo ? getImageUrl(logo.file_path, 'w500') : null;
-};
-
-
+  // const fetchMovieLogo = async (movieId: number) => {
+  //   const res = await fetch(
+  //     `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=${TMDB_API_KEY}&include_image_language=en,null`,
+  //   );
+  //   const data = await res.json();
+  //   const logo = data.logos?.[0]; // Pick the first logo
+  //   return logo ? getImageUrl(logo.file_path, 'w500') : null;
+  // };
 
   // useEffect(() => {
   // }, [movie.id]);
@@ -510,8 +512,8 @@ const fetchMovieLogo = async (movieId: number) => {
 
               <div className="flex items-center space-x-2">
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
-                <Play className="h-5 w-5 text-white" />
-              </div>
+                  <Play className="h-5 w-5 text-white" />
+                </div>
                 <span className="text-xl font-bold">CineContext</span>
               </div>
             </div>
@@ -527,7 +529,7 @@ const fetchMovieLogo = async (movieId: number) => {
                   <CardTitle className="text-white text-lg">Similar Movies</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {similarMovies?.results.slice(0, 4).map((item) => (
+                  {similarMovies?.results.slice(0, 4).map(item => (
                     <Link key={item.id} to={`/movie/${item.id}`}>
                       <div className="flex gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors cursor-pointer">
                         <img
@@ -542,7 +544,9 @@ const fetchMovieLogo = async (movieId: number) => {
                           </p>
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs text-slate-300">{getRating(item.vote_average)}</span>
+                            <span className="text-xs text-slate-300">
+                              {getRating(item.vote_average)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -560,7 +564,10 @@ const fetchMovieLogo = async (movieId: number) => {
                   {moodTags.map((mood, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-sm text-slate-300">{mood}</span>
-                      <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 text-xs">
+                      <Badge
+                        // variant="secondary"
+                        className="bg-purple-500/20 text-purple-300 text-xs"
+                      >
                         Match
                       </Badge>
                     </div>
@@ -590,7 +597,9 @@ const fetchMovieLogo = async (movieId: number) => {
                 {/* Movie Info */}
                 <div className="flex-1 space-y-6">
                   <div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{movie.title}</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                      {movie.title}
+                    </h1>
                     {movie.tagline && (
                       <p className="text-lg text-slate-300 italic mb-4">"{movie.tagline}"</p>
                     )}
@@ -613,8 +622,12 @@ const fetchMovieLogo = async (movieId: number) => {
 
                     {/* Genres */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {movie.genres.map((genre) => (
-                        <Badge key={genre.id} variant="secondary" className="bg-slate-700 text-slate-300">
+                      {movie.genres.map(genre => (
+                        <Badge
+                          key={genre.id}
+                          // variant="secondary"
+                          className="bg-slate-700 text-slate-300"
+                        >
                           {genre.name}
                         </Badge>
                       ))}
@@ -622,8 +635,12 @@ const fetchMovieLogo = async (movieId: number) => {
 
                     {/* Mood Tags */}
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {moodTags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="bg-purple-500/20 text-purple-300">
+                      {moodTags.map(tag => (
+                        <Badge
+                          key={tag}
+                          // variant="secondary"
+                          className="bg-purple-500/20 text-purple-300"
+                        >
                           {tag}
                         </Badge>
                       ))}
@@ -633,15 +650,17 @@ const fetchMovieLogo = async (movieId: number) => {
                   {/* Synopsis */}
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Synopsis</h3>
-                    <p className="text-slate-300 leading-relaxed">{movie.overview || 'No synopsis available.'}</p>
+                    <p className="text-slate-300 leading-relaxed">
+                      {movie.overview || 'No synopsis available.'}
+                    </p>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    {getTrailerUrl() && (
-                      <Button 
+                    {getTrailerUrl() !== null && (
+                      <Button
                         className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                        onClick={() => window.open(getTrailerUrl(), '_blank')}
+                        onClick={() => window.open(getTrailerUrl() as string, '_blank')}
                       >
                         <Play className="h-4 w-4 mr-2" />
                         Watch Trailer
@@ -649,23 +668,27 @@ const fetchMovieLogo = async (movieId: number) => {
                     )}
                     <Button
                       variant="outline"
-                      className={`border-slate-600 ${isInWatchlist ? "bg-purple-500/20 border-purple-500 text-purple-300" : "text-slate-300"}`}
-                      onClick={() => setIsInWatchlist(!isInWatchlist)}
+                      className={`border-slate-600 ${isInWatchlist ? 'bg-purple-500/20 border-purple-500 text-purple-300' : 'text-slate-300'}`}
+                      onClick={() => {
+                        setIsInWatchlist(!isInWatchlist);
+                      }}
                     >
                       {isInWatchlist ? (
                         <Bookmark className="h-4 w-4 mr-2 fill-current" />
                       ) : (
                         <Plus className="h-4 w-4 mr-2" />
                       )}
-                      {isInWatchlist ? "In Watchlist" : "Add to Watchlist"}
+                      {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                     </Button>
                     <Button
                       variant="outline"
-                      className={`border-slate-600 ${isLiked ? "bg-red-500/20 border-red-500 text-red-300" : "text-slate-300"}`}
-                      onClick={() => setIsLiked(!isLiked)}
+                      className={`border-slate-600 ${isLiked ? 'bg-red-500/20 border-red-500 text-red-300' : 'text-slate-300'}`}
+                      onClick={() => {
+                        setIsLiked(!isLiked);
+                      }}
                     >
-                      <Heart className={`h-4 w-4 mr-2 ${isLiked ? "fill-current" : ""}`} />
-                      {isLiked ? "Liked" : "Like"}
+                      <Heart className={`h-4 w-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+                      {isLiked ? 'Liked' : 'Like'}
                     </Button>
                     <Button variant="outline" className="border-slate-600 text-slate-300">
                       <Share2 className="h-4 w-4 mr-2" />
@@ -677,13 +700,19 @@ const fetchMovieLogo = async (movieId: number) => {
                   <div>
                     <h4 className="text-sm font-medium text-slate-300 mb-2">Rate this movie</h4>
                     <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button key={star} onClick={() => handleRating(star)} className="transition-colors">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          onClick={() => {
+                            handleRating(star);
+                          }}
+                          className="transition-colors"
+                        >
                           <Star
                             className={`h-6 w-6 ${
                               star <= userRating
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-slate-600 hover:text-yellow-400"
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-slate-600 hover:text-yellow-400'
                             }`}
                           />
                         </button>
@@ -697,7 +726,10 @@ const fetchMovieLogo = async (movieId: number) => {
                       <h4 className="text-sm font-medium text-slate-300 mb-2">Where to Watch</h4>
                       <div className="flex flex-wrap gap-2">
                         {getWatchProvidersList().map((provider, index) => (
-                          <Badge key={index} className="bg-slate-700 text-slate-300 hover:bg-slate-600 cursor-pointer">
+                          <Badge
+                            key={index}
+                            className="bg-slate-700 text-slate-300 hover:bg-slate-600 cursor-pointer"
+                          >
                             {provider.provider_name}
                             <ExternalLink className="h-3 w-3 ml-1" />
                           </Badge>
@@ -732,7 +764,9 @@ const fetchMovieLogo = async (movieId: number) => {
                       <CardTitle className="text-white">Overview</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-slate-300 leading-relaxed">{movie.overview || 'No detailed overview available.'}</p>
+                      <p className="text-slate-300 leading-relaxed">
+                        {movie.overview || 'No detailed overview available.'}
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -743,10 +777,13 @@ const fetchMovieLogo = async (movieId: number) => {
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {videos.results.slice(0, 4).map((video) => (
+                          {videos.results.slice(0, 4).map(video => (
                             <div key={video.id} className="space-y-2">
                               <h4 className="font-medium text-white text-sm">{video.name}</h4>
-                              <Badge variant="secondary" className="bg-slate-700 text-slate-300 text-xs">
+                              <Badge
+                                // variant="secondary"
+                                className="bg-slate-700 text-slate-300 text-xs"
+                              >
                                 {video.type}
                               </Badge>
                               {video.site === 'YouTube' && (
@@ -754,7 +791,12 @@ const fetchMovieLogo = async (movieId: number) => {
                                   variant="outline"
                                   size="sm"
                                   className="border-slate-600 text-slate-300"
-                                  onClick={() => window.open(`https://www.youtube.com/watch?v=${video.key}`, '_blank')}
+                                  onClick={() =>
+                                    window.open(
+                                      `https://www.youtube.com/watch?v=${video.key}`,
+                                      '_blank',
+                                    )
+                                  }
                                 >
                                   <Play className="h-3 w-3 mr-1" />
                                   Watch
@@ -779,7 +821,7 @@ const fetchMovieLogo = async (movieId: number) => {
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {mainCast.map((actor) => (
+                        {mainCast.map(actor => (
                           <div key={actor.id} className="text-center group cursor-pointer">
                             <div className="relative mb-2">
                               <img
@@ -826,7 +868,9 @@ const fetchMovieLogo = async (movieId: number) => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
-                            <h4 className="text-sm font-medium text-slate-400 mb-1">Release Date</h4>
+                            <h4 className="text-sm font-medium text-slate-400 mb-1">
+                              Release Date
+                            </h4>
                             <p className="text-slate-300">{formatDate(movie.release_date)}</p>
                           </div>
                           {movie.runtime && (
@@ -838,7 +882,8 @@ const fetchMovieLogo = async (movieId: number) => {
                           <div>
                             <h4 className="text-sm font-medium text-slate-400 mb-1">Languages</h4>
                             <p className="text-slate-300">
-                              {movie.spoken_languages.map(lang => lang.english_name).join(', ') || 'N/A'}
+                              {movie.spoken_languages.map(lang => lang.english_name).join(', ') ||
+                                'N/A'}
                             </p>
                           </div>
                           <div>
@@ -876,16 +921,19 @@ const fetchMovieLogo = async (movieId: number) => {
                       <CardTitle className="text-white">User Reviews</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      {movieData.reviews.map((review) => (
-                        <div key={review.id} className="border-b border-slate-700 pb-4 last:border-b-0">
+                      {movieData.reviews.map(review => (
+                        <div
+                          key={review.id}
+                          className="border-b border-slate-700 pb-4 last:border-b-0"
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Avatar className="h-8 w-8">
                                 <AvatarFallback className="bg-purple-500 text-white text-sm">
                                   {review.author
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
+                                    .split(' ')
+                                    .map(n => n[0])
+                                    .join('')}
                                 </AvatarFallback>
                               </Avatar>
                               <span className="font-medium text-white">{review.author}</span>
@@ -894,7 +942,9 @@ const fetchMovieLogo = async (movieId: number) => {
                                   <Star
                                     key={i}
                                     className={`h-4 w-4 ${
-                                      i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-600"
+                                      i < review.rating
+                                        ? 'fill-yellow-400 text-yellow-400'
+                                        : 'text-slate-600'
                                     }`}
                                   />
                                 ))}
@@ -920,5 +970,5 @@ const fetchMovieLogo = async (movieId: number) => {
         </div>
       </div>
     </div>
-      )
+  );
 }

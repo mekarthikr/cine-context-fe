@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Eye,
   User,
@@ -97,7 +96,7 @@ const moodPreferences = [
   { mood: 'Late Night Contemplation', selected: false },
 ];
 
-export const ProfilePage = () => {
+export const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -143,9 +142,9 @@ export const ProfilePage = () => {
               <div className="flex items-center space-x-2">
                 {/* <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
                  */}
-                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
-                <Play className="h-5 w-5 text-white" />
-              </div>
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
+                  <Play className="h-5 w-5 text-white" />
+                </div>
                 <span className="text-xl font-bold">CineContext</span>
               </div>
             </div>
@@ -224,7 +223,9 @@ export const ProfilePage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setIsEditing(!isEditing)}
+                        onClick={() => {
+                          setIsEditing(!isEditing);
+                        }}
                         className="text-slate-400 hover:text-white"
                       >
                         <Edit3 className="h-4 w-4" />
@@ -237,9 +238,9 @@ export const ProfilePage = () => {
                             <Label className="text-slate-300">Bio</Label>
                             <Textarea
                               value={profileData.bio}
-                              onChange={e =>
-                                setProfileData({ ...profileData, bio: e.target.value })
-                              }
+                              onChange={e => {
+                                setProfileData({ ...profileData, bio: e.target.value });
+                              }}
                               className="bg-slate-700 border-slate-600 text-white"
                               rows={3}
                             />
@@ -248,9 +249,9 @@ export const ProfilePage = () => {
                             <Label className="text-slate-300">Location</Label>
                             <Input
                               value={profileData.location}
-                              onChange={e =>
-                                setProfileData({ ...profileData, location: e.target.value })
-                              }
+                              onChange={e => {
+                                setProfileData({ ...profileData, location: e.target.value });
+                              }}
                               className="bg-slate-700 border-slate-600 text-white"
                             />
                           </div>
@@ -263,7 +264,9 @@ export const ProfilePage = () => {
                               Save
                             </Button>
                             <Button
-                              onClick={() => setIsEditing(false)}
+                              onClick={() => {
+                                setIsEditing(false);
+                              }}
                               variant="outline"
                               size="sm"
                               className="border-slate-600"
@@ -480,7 +483,9 @@ export const ProfilePage = () => {
                           <Label className="text-slate-300">Name</Label>
                           <Input
                             value={profileData.name}
-                            onChange={e => setProfileData({ ...profileData, name: e.target.value })}
+                            onChange={e => {
+                              setProfileData({ ...profileData, name: e.target.value });
+                            }}
                             className="bg-slate-700 border-slate-600 text-white"
                           />
                         </div>
@@ -488,9 +493,9 @@ export const ProfilePage = () => {
                           <Label className="text-slate-300">Email</Label>
                           <Input
                             value={profileData.email}
-                            onChange={e =>
-                              setProfileData({ ...profileData, email: e.target.value })
-                            }
+                            onChange={e => {
+                              setProfileData({ ...profileData, email: e.target.value });
+                            }}
                             className="bg-slate-700 border-slate-600 text-white"
                           />
                         </div>
@@ -525,9 +530,9 @@ export const ProfilePage = () => {
                           </div>
                           <Switch
                             checked={value}
-                            onCheckedChange={checked =>
-                              setNotifications({ ...notifications, [key]: checked })
-                            }
+                            onCheckedChange={checked => {
+                              setNotifications({ ...notifications, [key]: checked });
+                            }}
                             className="data-[state=checked]:bg-purple-500"
                           />
                         </div>

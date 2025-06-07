@@ -1,56 +1,94 @@
-import js from '@eslint/js';
 import globals from 'globals';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
-import prettier from 'eslint-config-prettier';
+import pluginJs from '@eslint/js';
+import eslintConfigLove from 'eslint-config-love';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import pluginReact from 'eslint-plugin-react';
+import pluginReactHooks from 'eslint-plugin-react-hooks';
+// import pluginReduxSaga from 'eslint-plugin-redux-saga';
+// import pluginTypedReduxSaga from '@jambit/eslint-plugin-typed-redux-saga';
+import eslintPluginJest from 'eslint-plugin-jest';
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+// import importOrder from './import-order.mjs';
 
-  // JavaScript base config
+export default [
+  // Global settings
   {
-    extends: [js.configs.recommended],
-  },
-
-  // TypeScript and React config
-  {
-    files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: globals.browser,
-      parser: tseslint.parser,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
+      globals: {
+        ...globals.node, // Node.js globals (includes process, __dirname, etc.)
+        ...globals.browser, // Browser globals (includes window, document, etc.)
+        NodeJS: true,
+        jest: true,
       },
     },
-    plugins: {
-      '@typescript-eslint': tseslint.plugin,
-      react,
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+  },
+
+  // JavaScript, TypeScript & Import Order Configurations
+  pluginJs.configs.recommended,
+  eslintPluginPrettierRecommended, // Enable Prettier plugin
+  eslintConfigPrettier, // Resolve Prettier conflicts
+  {
+    ...eslintConfigLove,
+    files: ['src/**/*.{js,ts,tsx}'],
+    rules: {
+      ...eslintConfigLove.rules,
+      // 'import/order': importOrder(), // Custom import order configuration
+      'promise/always-return': 'off',
+      'no-constant-binary-expression': 'off',
+      '@typescript-eslint/max-params': ['error', { max: 5 }],
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/init-declarations': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/promise-function-async': 'off',
+      '@typescript-eslint/class-methods-use-this': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/non-nullable-type-assertion-style': 'off',
     },
+  },
+
+  // Unit Testing Config
+  {
+    files: ['src/**/*.test.{js,ts,tsx}', 'src/tests/**/*.{js,ts,tsx}'],
+    ...eslintPluginJest.configs['flat/recommended'],
+    rules: {
+      ...eslintPluginJest.configs['flat/recommended'].rules,
+      'import/order': 'off',
+    },
+  },
+  {
+    files: ['src/store/**/*.test.{js,ts,tsx}'],
+    rules: {
+      'jest/no-standalone-expect': 'off',
+    },
+  },
+
+  // React Config
+  {
+    ...pluginReact.configs.flat.recommended,
     settings: {
       react: {
         version: 'detect',
+        pragma: 'React', // Default pragma
+        fragment: 'Fragment', // Default Fragment
       },
-    },
-    rules: {
-      ...tseslint.configs.recommended[0].rules,
-      ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',
-      '@typescript-eslint/no-unused-vars': ['error'],
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
   {
+    files: ['src/store/**/*.{js,ts,tsx}'],
     rules: {
-      ...prettier.rules,
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
-);
+
+  // Custom Plugins (React-Hooks, Redux-Saga, Typed-Redux-Saga)
+  {
+    plugins: {
+      'react-hooks': pluginReactHooks,
+      // 'redux-saga': pluginReduxSaga,
+      // 'typed-redux-saga': pluginTypedReduxSaga,
+    },
+  },
+];

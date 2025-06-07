@@ -50,7 +50,9 @@ export const ForgotPasswordPage = () => {
                 </p>
 
                 <Button
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => {
+                    setIsSubmitted(false);
+                  }}
                   variant="outline"
                   className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                 >
@@ -115,7 +117,9 @@ export const ForgotPasswordPage = () => {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                    }}
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
                     required
                   />
