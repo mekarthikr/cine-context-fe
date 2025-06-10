@@ -238,7 +238,7 @@ const tmdbApi = {
     return await response.json();
   },
 
-  getImageUrl(path: string | null, size = 'w500'): string {
+  getImageUrl(path: string | null, size = 'w342'): string {
     return path ? `${TMDB_IMAGE_BASE_URL}/${size}${path}` : '/placeholder.svg';
   },
 
@@ -714,7 +714,7 @@ export default function ShowDetailsPage(): React.JSX.Element {
                       <CardTitle className="text-white">Seasons Overview</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {showData.seasons
                           ?.filter(season => season.season_number > 0)
                           .map(season => (
@@ -723,9 +723,9 @@ export default function ShowDetailsPage(): React.JSX.Element {
                               className="bg-slate-800/50 rounded-lg p-4 hover:bg-slate-800 transition-colors cursor-pointer"
                             >
                               <img
-                                src={tmdbApi.getImageUrl(season.poster_path, 'w300')}
+                                src={tmdbApi.getImageUrl(season.poster_path)}
                                 alt={season.name}
-                                className="w-full h-32 object-cover rounded mb-3"
+                                className="w-full h-85 object-cover rounded mb-3"
                               />
                               <h4 className="font-medium text-white mb-1">{season.name}</h4>
                               <p className="text-sm text-slate-400 mb-2">
@@ -881,7 +881,7 @@ export default function ShowDetailsPage(): React.JSX.Element {
                               <img
                                 src={tmdbApi.getImageUrl(actor.profile_path, 'w185')}
                                 alt={actor.name}
-                                className="w-full h-32 object-cover rounded-lg group-hover:scale-105 transition-transform"
+                                className="w-full h-50 object-cover rounded-lg group-hover:scale-105 transition-transform"
                               />
                             </div>
                             <h4 className="font-medium text-white text-sm">{actor.name}</h4>

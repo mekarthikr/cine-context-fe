@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  Search,
   User,
   Play,
   Star,
@@ -13,7 +12,6 @@ import {
   // Loader2,
 } from 'lucide-react';
 import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
 import { Badge } from '../../ui/badge';
 import { Card, CardContent } from '../../ui/card';
 import { Checkbox } from '../../ui/checkbox';
@@ -37,6 +35,7 @@ import {
   getYear,
 } from '../../lib/tmdb';
 import { Link } from 'react-router';
+import { SearchBar } from '../search/SearchBar';
 
 interface ContentItem {
   id: number;
@@ -381,7 +380,7 @@ export default function CineContextPage() {
                 CineContext
               </span>
             </div>
-            <div className="flex-1 max-w-2xl mx-12">
+            {/* <div className="flex-1 max-w-2xl mx-12">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <Input
@@ -389,7 +388,8 @@ export default function CineContextPage() {
                   className="pl-12 pr-4 py-3 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                 />
               </div>
-            </div>
+            </div> */}
+            <SearchBar className="flex-1 max-w-2xl mx-8" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

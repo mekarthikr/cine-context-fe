@@ -7,6 +7,7 @@ import { ProfilePage } from '../component/profile/profile';
 import { SignUpPage } from '../component/signup/signup';
 import type React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import SearchPage from '../component/search/SearchPage';
 
 export const AppRoutes: React.FC = () => (
   <BrowserRouter>
@@ -19,6 +20,7 @@ export const AppRoutes: React.FC = () => (
       <Route path="forgot-password" element={<ForgotPasswordPage />} />
       <Route path="movie/:movieId" element={<MovieDetailsPage />} />
       <Route path="show/:showId" element={<ShowDetailsPage />} />
+      <Route path="search" element={<SearchPage />} />
     </Routes>
   </BrowserRouter>
 );
