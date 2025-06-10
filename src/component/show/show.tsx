@@ -32,6 +32,8 @@ import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
 import { Progress } from '../../ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../../ui/collapsible';
+import { ShowTitleLogo } from '../logo/logo';
+import { ShowBackdrop } from '../logo/background';
 
 // TypeScript interfaces for TMDB API responses
 interface TMDBGenre {
@@ -169,10 +171,11 @@ interface TMDBTVShowDetails {
   };
   'watch/providers': TMDBWatchProviders;
   external_ids: TMDBExternalIds;
+  // networks:
 
   firstAired: string;
   country: string;
-  network: string;
+  network: Array<{ name: string; logo_path: string }>;
   language: string;
   totalEpisodes: string;
   totalSeasons: string;
@@ -388,7 +391,7 @@ export default function ShowDetailsPage(): React.JSX.Element {
   }
 
   // Extract useful data from TMDB response
-  const backdropUrl = tmdbApi.getBackdropUrl(showData.backdrop_path);
+  // const backdropUrl = tmdbApi.getBackdropUrl(showData.backdrop_path);
   const posterUrl = tmdbApi.getImageUrl(showData.poster_path, 'w500');
   const totalEpisodes = showData.number_of_episodes || 0;
   const totalSeasons = showData.number_of_seasons || 0;
@@ -407,7 +410,7 @@ export default function ShowDetailsPage(): React.JSX.Element {
   const trailer = showData.videos?.results?.find(
     video => video.type === 'Trailer' && video.site === 'YouTube',
   );
-  const watchProviders = showData['watch/providers']?.results?.US?.flatrate || [];
+  const watchProviders = showData.network || [];
 
   // Mock progress data (in real app, this would come from user's watch history)
   const watchedEpisodes = Math.floor(totalEpisodes * 0.3); // 30% watched for demo
@@ -416,13 +419,18 @@ export default function ShowDetailsPage(): React.JSX.Element {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Background Image */}
-      <div
+      {/* <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${backdropUrl})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/80"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50"></div>
-      </div>
+      </div> */}
+
+      <ShowBackdrop showId={showData.id} showTitle={showData.name} className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50"></div>
+      </ShowBackdrop>
 
       <div className="relative">
         {/* Header */}
@@ -512,7 +520,15 @@ export default function ShowDetailsPage(): React.JSX.Element {
                 <div className="flex-1 space-y-6">
                   <div>
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-                      {showData.name}
+                      {/* {showData.name} */}
+                      <div className="mb-4">
+                        <ShowTitleLogo
+                          showId={showData.id}
+                          showTitle={showData.name}
+                          className="mb-2"
+                          fallbackClassName="text-4xl md:text-5xl font-bold"
+                        />
+                      </div>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 text-slate-300 mb-4">
                       <span className="flex items-center gap-1">
@@ -556,9 +572,16 @@ export default function ShowDetailsPage(): React.JSX.Element {
                         <Badge
                           key={network.id}
                           variant="secondary"
-                          className="bg-purple-500/20 text-purple-300"
+                          className="bg-purple-500/40 text-purple-300 flex items-center gap-2"
                         >
-                          {network.name}
+                          {network.logo_path && (
+                            <img
+                              src={`https://image.tmdb.org/t/p/w300${network.logo_path}`}
+                              alt={`${network.name} logo`}
+                              className="h-8 w-auto object-contain max-w-24"
+                            />
+                          )}
+                          {/* {network.name} */}
                         </Badge>
                       ))}
                     </div>
@@ -581,9 +604,10 @@ export default function ShowDetailsPage(): React.JSX.Element {
                   </div>
 
                   {/* Synopsis */}
+
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Synopsis</h3>
-                    <p className="text-slate-300 leading-relaxed">
+                    <p className="text-slate-300 leading-relaxed line-clamp-3">
                       {showData.overview || 'No synopsis available.'}
                     </p>
                   </div>
@@ -662,10 +686,10 @@ export default function ShowDetailsPage(): React.JSX.Element {
                       <div className="flex flex-wrap gap-2">
                         {watchProviders.map(provider => (
                           <Badge
-                            key={provider.provider_id}
+                            // key={provider.provider_id}
                             className="bg-slate-700 text-slate-300 hover:bg-slate-600 cursor-pointer"
                           >
-                            {provider.provider_name}
+                            {provider.name}
                             <ExternalLink className="h-3 w-3 ml-1" />
                           </Badge>
                         ))}
@@ -673,6 +697,34 @@ export default function ShowDetailsPage(): React.JSX.Element {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="mb-8">
+                <Card
+                  className="bg-slate-900/80 backdrop-blur border-slate-700 overflow-hidden"
+                  style={{ padding: 0 }}
+                >
+                  <ShowBackdrop
+                    showId={showData.id}
+                    showTitle={showData.name}
+                    className="relative h-64 md:h-80 lg:h-96"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-slate-300 max-w-2xl">
+                            Get an immersive look into the world of {showData.name}
+                          </p>
+                        </div>
+                        <Button className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                          <Play className="h-4 w-4 mr-2" />
+                          Watch Trailer
+                        </Button>
+                      </div>
+                    </div>
+                  </ShowBackdrop>
+                </Card>
               </div>
 
               {/* Detailed Information Tabs */}
@@ -966,10 +1018,10 @@ export default function ShowDetailsPage(): React.JSX.Element {
                           </div>
                         </div>
                         <div className="space-y-4">
-                          <div>
+                          {/* <div>
                             <h4 className="text-sm font-medium text-slate-400 mb-1">Network</h4>
                             <p className="text-slate-300">{showData.network}</p>
-                          </div>
+                          </div> */}
                           <div>
                             <h4 className="text-sm font-medium text-slate-400 mb-1">
                               Total Seasons

@@ -1,7 +1,5 @@
 import type React from 'react';
-
 import { useState } from 'react';
-// import Link from "next/link"
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { Input } from '../../ui/input';
