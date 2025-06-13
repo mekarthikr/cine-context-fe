@@ -34,6 +34,8 @@ import { Progress } from '../../ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../../ui/collapsible';
 import { ShowTitleLogo } from '../logo/logo';
 import { ShowBackdrop } from '../logo/background';
+import { ContentBackdrop } from '../logo/contentBackground';
+import { ContentTitleLogo } from '../logo/title-logo';
 
 // TypeScript interfaces for TMDB API responses
 interface TMDBGenre {
@@ -522,12 +524,19 @@ export default function ShowDetailsPage(): React.JSX.Element {
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
                       {/* {showData.name} */}
                       <div className="mb-4">
-                        <ShowTitleLogo
+                        {/* <ShowTitleLogo
                           showId={showData.id}
                           showTitle={showData.name}
                           className="mb-2"
                           fallbackClassName="text-4xl md:text-5xl font-bold"
-                        />
+                        /> */}
+                        <ContentTitleLogo
+                        contentId={showData.id}
+                        contentType="tv"
+                        contentTitle={showData.name}
+                        className="mb-2"
+                        fallbackClassName="text-4xl md:text-5xl font-bold"
+                      />
                       </div>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 text-slate-300 mb-4">
@@ -704,9 +713,10 @@ export default function ShowDetailsPage(): React.JSX.Element {
                   className="bg-slate-900/80 backdrop-blur border-slate-700 overflow-hidden"
                   style={{ padding: 0 }}
                 >
-                  <ShowBackdrop
-                    showId={showData.id}
-                    showTitle={showData.name}
+                  <ContentBackdrop
+                     contentId={showData.id}
+                    contentType="tv"
+                    contentTitle={showData.name}
                     className="relative h-64 md:h-80 lg:h-96"
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
@@ -723,7 +733,7 @@ export default function ShowDetailsPage(): React.JSX.Element {
                         </Button>
                       </div>
                     </div>
-                  </ShowBackdrop>
+                  </ContentBackdrop>
                 </Card>
               </div>
 

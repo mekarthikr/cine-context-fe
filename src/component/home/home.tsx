@@ -1,76 +1,90 @@
-import { useState, useEffect } from 'react';
+"use client"
+
+import type React from "react"
+
+import { useEffect, useState, useRef, useCallback } from "react"
+import {Link} from "react-router"
+// import { useTheme } from "next-themes"
 import {
   User,
   Play,
   Star,
-  Clock,
-  TrendingUp,
   ChevronRight,
   Flame,
-  Eye,
-  Heart,
-  // Loader2,
-} from 'lucide-react';
-import { Button } from '../../ui/button';
-import { Badge } from '../../ui/badge';
-import { Card, CardContent } from '../../ui/card';
-import { Checkbox } from '../../ui/checkbox';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { Progress } from '../../ui/progress';
-import {
-  tmdbApi,
-  type TMDBMovie,
-  type TMDBTVShow,
-  isMovie,
-  getTitle,
-  getReleaseDate,
-  formatRating,
-  getYear,
-} from '../../lib/tmdb';
-import { Link } from 'react-router';
-import { SearchBar } from '../search/SearchBar';
+  Filter,
+  SunMedium,
+  Moon,
+  ArrowRight,
+  Calendar,
+  Film,
+  Tv,
+  Sparkles,
+  Award,
+  Popcorn,
+  Bookmark,
+  Plus,
+  Info,
+} from "lucide-react"
+import { Button } from "../../ui/button"
+import { Badge } from "../../ui/badge"
+import { Card, CardContent } from "../../ui/card"
+import { Checkbox } from "../../ui/checkbox"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar"
+import { Progress } from "../../ui/progress"
+import { Slider } from "../../ui/slider"
+import { Label } from "../../ui/label"
+// import { SearchBar } from "../../search-bar"
+// import { ContentBackdrop } from "../../content-backdrop"
+// import { ContentTitleLogo } from "../../content-title-logo"
+import { tmdbApi, type TMDBMovie, type TMDBTVShow, isMovie, getTitle, formatRating, getYear } from "../../lib/tmdb"
+import { ContentBackdrop } from "../logo/contentBackground"
+import { ContentTitleLogo } from "../logo/title-logo"
+import { SearchBar } from "../search/SearchBar"
 
+// Types for our content
 interface ContentItem {
-  id: number;
-  title: string;
-  type: 'movie' | 'show';
-  image: string;
-  backdropImage: string;
-  year: string;
-  rating: number;
-  duration?: string;
-  tags: string[];
-  description: string;
-  isNew?: boolean;
-  isTrending?: boolean;
-}
-
-interface TrendingItem {
-  id: number;
-  title: string;
-  type: 'movie' | 'show';
-  image: string;
-  rating: number;
-  change: string;
-  viewers: string;
+  id: number
+  title: string
+  type: "movie" | "tv"
+  image: string
+  backdropImage: string
+  year: string
+  rating: number
+  duration?: string
+  tags: string[]
+  description: string
+  isNew?: boolean
+  isTrending?: boolean
+  genres?: string[]
+  voteCount?: number
+  popularity?: number
 }
 
 interface PersonItem {
-  id: number;
-  name: string;
-  image: string;
-  role: string;
-  knownFor: string;
-  trending: boolean;
+  id: number
+  name: string
+  image: string
+  role: string
+  knownFor: string
+  trending: boolean
+  popularity: number
 }
 
+interface GenreItem {
+  id: number
+  name: string
+}
+
+interface FilterOptions {
+  mediaType: string[]
+  genres: number[]
+  year: [number, number]
+  rating: number
+  language: string
+}
+
+// Mood collections for curated content
 const moodCollections = [
   {
     id: 1,
@@ -104,476 +118,657 @@ const moodCollections = [
     count: 15,
     color: 'from-pink-400 to-rose-500', // romantic and light-hearted tones
   },
-];
+]
 
+// Continue watching data (this would come from user data in a real app)
 const continueWatching = [
   {
     id: 1,
-    title: 'The Bear',
-    type: 'show' as const,
-    image: '/placeholder.svg?height=120&width=80',
+    title: "The Bear",
+    type: "tv" as const,
+    image: "/placeholder.svg?height=120&width=80",
     progress: 65,
-    episode: 'S3E4',
-    timeLeft: '25 min left',
+    episode: "S3E4",
+    timeLeft: "25 min left",
   },
   {
     id: 2,
-    title: 'Succession',
-    type: 'show' as const,
-    image: '/placeholder.svg?height=120&width=80',
+    title: "Succession",
+    type: "tv" as const,
+    image: "/placeholder.svg?height=120&width=80",
     progress: 80,
-    episode: 'S4E8',
-    timeLeft: '15 min left',
+    episode: "S4E8",
+    timeLeft: "15 min left",
   },
   {
     id: 3,
-    title: 'Atlanta',
-    type: 'show' as const,
-    image: '/placeholder.svg?height=120&width=80',
+    title: "Atlanta",
+    type: "tv" as const,
+    image: "/placeholder.svg?height=120&width=80",
     progress: 30,
-    episode: 'S2E3',
-    timeLeft: '20 min left',
+    episode: "S2E3",
+    timeLeft: "20 min left",
   },
-];
+]
 
-// Mock mood tags mapping for content
+// Helper function to get mood tags for content
 const getMoodTags = (item: TMDBMovie | TMDBTVShow): string[] => {
-  // const title = getTitle(item).toLowerCase();
-  const overview = item.overview.toLowerCase();
+  const title = getTitle(item).toLowerCase()
+  const overview = item.overview.toLowerCase()
 
-  const tags: string[] = [];
+  const tags: string[] = []
 
   // Simple keyword-based mood tagging
-  if (overview.includes('love') || overview.includes('romance')) tags.push('Romance');
-  if (overview.includes('family')) tags.push('Family');
-  if (overview.includes('dark') || overview.includes('crime')) tags.push('Dark');
-  if (overview.includes('comedy') || overview.includes('funny')) tags.push('Comedy');
-  if (overview.includes('action') || overview.includes('fight')) tags.push('Action');
-  if (overview.includes('mystery') || overview.includes('secret')) tags.push('Mystery');
-  if (overview.includes('drama')) tags.push('Drama');
-  if (overview.includes('adventure')) tags.push('Adventure');
+  if (overview.includes("love") || overview.includes("romance")) tags.push("Romance")
+  if (overview.includes("family")) tags.push("Family")
+  if (overview.includes("dark") || overview.includes("crime")) tags.push("Dark")
+  if (overview.includes("comedy") || overview.includes("funny")) tags.push("Comedy")
+  if (overview.includes("action") || overview.includes("fight")) tags.push("Action")
+  if (overview.includes("mystery") || overview.includes("secret")) tags.push("Mystery")
+  if (overview.includes("drama")) tags.push("Drama")
+  if (overview.includes("adventure")) tags.push("Adventure")
 
   // Default tags if none found
   if (tags.length === 0) {
     if (isMovie(item)) {
-      tags.push('Cinematic');
+      tags.push("Cinematic")
     } else {
-      tags.push('Binge-worthy');
+      tags.push("Binge-worthy")
     }
   }
 
-  return tags.slice(0, 3); // Limit to 3 tags
-};
+  return tags.slice(0, 3) // Limit to 3 tags
+}
+
+// Helper function to map genre IDs to names
+const mapGenreIdsToNames = (genreIds: number[], genreMap: Map<number, string>): string[] => {
+  return genreIds.map((id) => genreMap.get(id) || "").filter(Boolean)
+}
 
 export default function CineContextPage() {
-  const [featuredContent, setFeaturedContent] = useState<ContentItem[]>([]);
-  const [popularContent, setPopularContent] = useState<ContentItem[]>([]);
-  const [trendingContent, setTrendingContent] = useState<TrendingItem[]>([]);
-  const [newReleases, setNewReleases] = useState<ContentItem[]>([]);
-  const [upcomingContent, setUpcomingContent] = useState<ContentItem[]>([]);
-  const [featuredPeople, setFeaturedPeople] = useState<PersonItem[]>([]);
-  const [recommendations, setRecommendations] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Theme
+  // const { theme, setTheme } = useTheme()
 
+  // Content state
+  const [heroContent, setHeroContent] = useState<ContentItem | null>(null)
+  const [trendingMovies, setTrendingMovies] = useState<ContentItem[]>([])
+  const [trendingTVShows, setTrendingTVShows] = useState<ContentItem[]>([])
+  const [popularMovies, setPopularMovies] = useState<ContentItem[]>([])
+  const [popularTVShows, setPopularTVShows] = useState<ContentItem[]>([])
+  const [topRatedMovies, setTopRatedMovies] = useState<ContentItem[]>([])
+  const [topRatedTVShows, setTopRatedTVShows] = useState<ContentItem[]>([])
+  const [upcomingMovies, setUpcomingMovies] = useState<ContentItem[]>([])
+  const [nowPlayingMovies, setNowPlayingMovies] = useState<ContentItem[]>([])
+  const [trendingPeople, setTrendingPeople] = useState<PersonItem[]>([])
+  const [movieGenres, setMovieGenres] = useState<GenreItem[]>([])
+  const [tvGenres, setTVGenres] = useState<GenreItem[]>([])
+  const [genreMap, setGenreMap] = useState<Map<number, string>>(new Map())
+  const [filteredContent, setFilteredContent] = useState<ContentItem[]>([])
+
+  // UI state
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    mediaType: ["movie", "tv"],
+    genres: [],
+    year: [1990, new Date().getFullYear()],
+    rating: 0,
+    language: "en",
+  })
+
+  // Refs for scroll containers
+  const trendingMoviesRef = useRef<HTMLDivElement>(null)
+  const trendingTVShowsRef = useRef<HTMLDivElement>(null)
+  const popularMoviesRef = useRef<HTMLDivElement>(null)
+  const popularTVShowsRef = useRef<HTMLDivElement>(null)
+  const topRatedMoviesRef = useRef<HTMLDivElement>(null)
+  const topRatedTVShowsRef = useRef<HTMLDivElement>(null)
+  const upcomingMoviesRef = useRef<HTMLDivElement>(null)
+  const nowPlayingMoviesRef = useRef<HTMLDivElement>(null)
+
+  // Fetch all data on component mount
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAllData = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
 
-        // Fetch trending content for featured section
-        const trendingResponse = await tmdbApi.getTrending('all', 'week');
-        const featured = trendingResponse.results.slice(0, 4).map(
-          (item): ContentItem => ({
-            id: item.id,
-            title: getTitle(item),
-            type: isMovie(item) ? 'movie' : 'show',
-            image: tmdbApi.getBackdropUrl(item.backdrop_path, 'w780'),
-            backdropImage: tmdbApi.getBackdropUrl(item.backdrop_path, 'w1280'),
-            year: getYear(getReleaseDate(item)),
-            rating: formatRating(item.vote_average),
-            tags: getMoodTags(item),
-            description: item.overview.slice(0, 100) + '...',
-            isTrending: true,
-          }),
-        );
-        setFeaturedContent(featured);
+        // Fetch genres first to use for mapping
+        const [movieGenresResponse, tvGenresResponse] = await Promise.all([
+          tmdbApi.getMovieGenres(),
+          tmdbApi.getTVGenres(),
+        ])
 
-        // Fetch popular movies and TV shows for main content
-        const [popularMoviesResponse, popularTVResponse] = await Promise.all([
+        setMovieGenres(movieGenresResponse.genres)
+        setTVGenres(tvGenresResponse.genres)
+
+        // Create a map of genre IDs to names
+        const genreMapTemp = new Map<number, string>()
+        movieGenresResponse.genres.forEach((genre) => genreMapTemp.set(genre.id, genre.name))
+        tvGenresResponse.genres.forEach((genre) => genreMapTemp.set(genre.id, genre.name))
+        setGenreMap(genreMapTemp)
+
+        // Fetch all content in parallel
+        const [
+          trendingMoviesResponse,
+          trendingTVResponse,
+          popularMoviesResponse,
+          popularTVResponse,
+          topRatedMoviesResponse,
+          topRatedTVResponse,
+          upcomingMoviesResponse,
+          nowPlayingMoviesResponse,
+          trendingPeopleResponse,
+        ] = await Promise.all([
+          tmdbApi.getTrending("movie", "day"),
+          tmdbApi.getTrending("tv", "day"),
           tmdbApi.getPopularMovies(),
           tmdbApi.getPopularTVShows(),
-        ]);
+          tmdbApi.getTopRatedMovies(),
+          tmdbApi.getTopRatedTVShows(),
+          tmdbApi.getUpcomingMovies(),
+          tmdbApi.getNowPlayingMovies(),
+          tmdbApi.getTrendingPeople(),
+        ])
 
-        const popularMovies = popularMoviesResponse.results.slice(0, 3).map(
+        // Process trending movies
+        const trendingMoviesData = trendingMoviesResponse.results.map(
           (movie): ContentItem => ({
             id: movie.id,
             title: movie.title,
-            type: 'movie',
+            type: "movie",
             image: tmdbApi.getImageUrl(movie.poster_path),
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
-            year: getYear(movie.release_date),
+            year: getYear(movie.release_date as any),
             rating: formatRating(movie.vote_average),
-            duration: '120 min', // Default duration
             tags: getMoodTags(movie),
-            description: movie.overview.slice(0, 150) + '...',
-            isTrending: movie.popularity > 100,
+            description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? "..." : ""),
+            isTrending: true,
+            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            voteCount: movie.vote_count,
+            popularity: movie.popularity,
           }),
-        );
+        )
+        setTrendingMovies(trendingMoviesData)
 
-        const popularTV = popularTVResponse.results.slice(0, 3).map(
+        // Set hero content from trending movies
+        if (trendingMoviesData.length > 0) {
+          setHeroContent(trendingMoviesData[Math.floor(Math.random() * 10)])
+        }
+
+        // Process trending TV shows
+        const trendingTVData = trendingTVResponse.results.map(
           (show): ContentItem => ({
             id: show.id,
             title: show.name,
-            type: 'show',
+            type: "tv",
             image: tmdbApi.getImageUrl(show.poster_path),
             backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
             year: getYear(show.first_air_date),
             rating: formatRating(show.vote_average),
-            duration: 'Multiple seasons',
             tags: getMoodTags(show),
-            description: show.overview.slice(0, 150) + '...',
-            isTrending: show.popularity > 100,
+            description: show.overview.slice(0, 150) + (show.overview.length > 150 ? "..." : ""),
+            isTrending: true,
+            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+            voteCount: show.vote_count,
+            popularity: show.popularity,
           }),
-        );
+        )
+        setTrendingTVShows(trendingTVData)
 
-        setPopularContent([...popularMovies, ...popularTV]);
-
-        // Fetch trending for trending section
-        const trending = trendingResponse.results.slice(4, 7).map(
-          (item): TrendingItem => ({
-            id: item.id,
-            title: getTitle(item),
-            type: isMovie(item) ? 'movie' : 'show',
-            image: tmdbApi.getBackdropUrl(item.backdrop_path, 'w300'),
-            rating: formatRating(item.vote_average),
-            change: '+' + Math.floor(Math.random() * 20 + 5) + '%',
-            viewers: (Math.random() * 3 + 1).toFixed(1) + 'M',
-          }),
-        );
-        setTrendingContent(trending);
-
-        // Fetch now playing movies for new releases
-        const nowPlayingResponse = await tmdbApi.getNowPlayingMovies();
-        const newMovies = nowPlayingResponse.results.slice(0, 3).map(
+        // Process popular movies
+        const popularMoviesData = popularMoviesResponse.results.map(
           (movie): ContentItem => ({
             id: movie.id,
             title: movie.title,
-            type: 'movie',
+            type: "movie",
             image: tmdbApi.getImageUrl(movie.poster_path),
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
             tags: getMoodTags(movie),
-            description: movie.overview.slice(0, 100) + '...',
+            description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? "..." : ""),
+            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            voteCount: movie.vote_count,
+            popularity: movie.popularity,
+          }),
+        )
+        setPopularMovies(popularMoviesData)
+
+        // Process popular TV shows
+        const popularTVData = popularTVResponse.results.map(
+          (show): ContentItem => ({
+            id: show.id,
+            title: show.name,
+            type: "tv",
+            image: tmdbApi.getImageUrl(show.poster_path),
+            backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
+            year: getYear(show.first_air_date),
+            rating: formatRating(show.vote_average),
+            tags: getMoodTags(show),
+            description: show.overview.slice(0, 150) + (show.overview.length > 150 ? "..." : ""),
+            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+            voteCount: show.vote_count,
+            popularity: show.popularity,
+          }),
+        )
+        setPopularTVShows(popularTVData)
+
+        // Process top rated movies
+        const topRatedMoviesData = topRatedMoviesResponse.results.map(
+          (movie): ContentItem => ({
+            id: movie.id,
+            title: movie.title,
+            type: "movie",
+            image: tmdbApi.getImageUrl(movie.poster_path),
+            backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
+            year: getYear(movie.release_date),
+            rating: formatRating(movie.vote_average),
+            tags: getMoodTags(movie),
+            description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? "..." : ""),
+            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            voteCount: movie.vote_count,
+            popularity: movie.popularity,
+          }),
+        )
+        setTopRatedMovies(topRatedMoviesData)
+
+        // Process top rated TV shows
+        const topRatedTVData = topRatedTVResponse.results.map(
+          (show): ContentItem => ({
+            id: show.id,
+            title: show.name,
+            type: "tv",
+            image: tmdbApi.getImageUrl(show.poster_path),
+            backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
+            year: getYear(show.first_air_date),
+            rating: formatRating(show.vote_average),
+            tags: getMoodTags(show),
+            description: show.overview.slice(0, 150) + (show.overview.length > 150 ? "..." : ""),
+            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+            voteCount: show.vote_count,
+            popularity: show.popularity,
+          }),
+        )
+        setTopRatedTVShows(topRatedTVData)
+
+        // Process upcoming movies
+        const upcomingMoviesData = upcomingMoviesResponse.results.map(
+          (movie): ContentItem => ({
+            id: movie.id,
+            title: movie.title,
+            type: "movie",
+            image: tmdbApi.getImageUrl(movie.poster_path),
+            backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
+            year: getYear(movie.release_date),
+            rating: formatRating(movie.vote_average),
+            tags: getMoodTags(movie),
+            description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? "..." : ""),
             isNew: true,
+            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            voteCount: movie.vote_count,
+            popularity: movie.popularity,
           }),
-        );
-        setNewReleases(newMovies);
+        )
+        setUpcomingMovies(upcomingMoviesData)
 
-        // Fetch upcoming movies
-        const upcomingResponse = await tmdbApi.getUpcomingMovies();
-        const upcoming = upcomingResponse.results.slice(0, 2).map(
+        // Process now playing movies
+        const nowPlayingMoviesData = nowPlayingMoviesResponse.results.map(
           (movie): ContentItem => ({
             id: movie.id,
             title: movie.title,
-            type: 'movie',
+            type: "movie",
             image: tmdbApi.getImageUrl(movie.poster_path),
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
             tags: getMoodTags(movie),
-            description: movie.overview.slice(0, 100) + '...',
+            description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? "..." : ""),
+            isNew: true,
+            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            voteCount: movie.vote_count,
+            popularity: movie.popularity,
           }),
-        );
-        setUpcomingContent(upcoming);
+        )
+        setNowPlayingMovies(nowPlayingMoviesData)
 
-        // Fetch trending people
-        const peopleResponse = await tmdbApi.getTrendingPeople();
-        const people = peopleResponse.results.slice(0, 3).map(
+        // Process trending people
+        const trendingPeopleData = trendingPeopleResponse.results.map(
           (person): PersonItem => ({
             id: person.id,
             name: person.name,
             image: tmdbApi.getImageUrl(person.profile_path),
             role: person.known_for_department,
-            knownFor:
-              person.known_for
-                ?.slice(0, 2)
-                .map(item => getTitle(item))
-                .join(', ') ?? '',
+            knownFor: person.known_for
+              ?.slice(0, 2)
+              .map((item) => getTitle(item))
+              .join(", ") || "Various works",
             trending: person.popularity > 50,
+            popularity: person.popularity,
           }),
-        );
-        setFeaturedPeople(people);
+        )
+        setTrendingPeople(trendingPeopleData)
 
-        // Set recommendations (using top rated for now)
-        const topRatedResponse = await tmdbApi.getTopRatedMovies();
-        const recs = topRatedResponse.results.slice(0, 4).map(
-          (movie): ContentItem => ({
-            id: movie.id,
-            title: movie.title,
-            type: 'movie',
-            image: tmdbApi.getImageUrl(movie.poster_path),
-            backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
-            year: getYear(movie.release_date),
-            rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
-            description: movie.overview.slice(0, 100) + '...',
-          }),
-        );
-        setRecommendations(recs);
+        // Set initial filtered content
+        const allContent = [
+          ...trendingMoviesData,
+          ...trendingTVData,
+          ...popularMoviesData,
+          ...popularTVData,
+          ...topRatedMoviesData,
+          ...topRatedTVData,
+          ...upcomingMoviesData,
+          ...nowPlayingMoviesData,
+        ]
+        // Remove duplicates by ID and type
+        const uniqueContent = Array.from(
+          new Map(allContent.map((item) => [`${item.type}-${item.id}`, item])).values(),
+        )
+        setFilteredContent(uniqueContent)
       } catch (err) {
-        console.error('Error fetching TMDB data:', err);
-        setError('Failed to load content. Please try again later.');
+        console.error("Error fetching TMDB data:", err)
+        setError("Failed to load content. Please try again later.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    // Load watchlist from localStorage
+    const savedWatchlist = localStorage.getItem("watchlist")
+    if (savedWatchlist) {
+      setWatchlist(new Set(JSON.parse(savedWatchlist)))
+    }
+
+    fetchAllData()
+  }, [])
+
+  // Apply filters when filter options change
+  useEffect(() => {
+    if (loading) return
+
+    const allContent = [
+      ...trendingMovies,
+      ...trendingTVShows,
+      ...popularMovies,
+      ...popularTVShows,
+      ...topRatedMovies,
+      ...topRatedTVShows,
+      ...upcomingMovies,
+      ...nowPlayingMovies,
+    ]
+
+    // Remove duplicates by ID and type
+    const uniqueContent = Array.from(
+      new Map(allContent.map((item) => [`${item.type}-${item.id}`, item])).values(),
+    )
+
+    // Apply filters
+    const filtered = uniqueContent.filter((item) => {
+      // Filter by media type
+      if (!filterOptions.mediaType.includes(item.type)) return false
+
+      // Filter by genre
+      if (filterOptions.genres.length > 0 && item.genres) {
+        const itemGenreIds = item.genres.map((genre) => {
+          // Find the genre ID by name
+          for (const [id, name] of genreMap.entries()) {
+            if (name === genre) return id
+          }
+          return -1
+        })
+        if (!filterOptions.genres.some((genreId) => itemGenreIds.includes(genreId))) return false
+      }
+
+      // Filter by year
+      const itemYear = Number.parseInt(item.year)
+      if (isNaN(itemYear) || itemYear < filterOptions.year[0] || itemYear > filterOptions.year[1]) return false
+
+      // Filter by rating
+      if (item.rating < filterOptions.rating) return false
+
+      return true
+    })
+
+    setFilteredContent(filtered)
+  }, [filterOptions, loading, trendingMovies, trendingTVShows, popularMovies, popularTVShows, topRatedMovies, topRatedTVShows, upcomingMovies, nowPlayingMovies, genreMap])
+
+  // Handle watchlist toggle
+  const toggleWatchlist = useCallback(
+    (item: ContentItem) => {
+      const itemKey = `${item.type}-${item.id}`
+      const newWatchlist = new Set(watchlist)
+
+      if (newWatchlist.has(itemKey)) {
+        newWatchlist.delete(itemKey)
+      } else {
+        newWatchlist.add(itemKey)
+      }
+
+      setWatchlist(newWatchlist)
+      localStorage.setItem("watchlist", JSON.stringify(Array.from(newWatchlist)))
+    },
+    [watchlist],
+  )
+
+  // Check if item is in watchlist
+  const isInWatchlist = useCallback(
+    (item: ContentItem) => {
+      return watchlist.has(`${item.type}-${item.id}`)
+    },
+    [watchlist],
+  )
+
+  // Scroll handlers for carousels
+  const scroll = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
+    if (ref.current) {
+      const scrollAmount = ref.current.clientWidth * 0.75
+      ref.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      })
+    }
+  }
+
+  // Handle filter changes
+  const handleFilterChange = (key: keyof FilterOptions, value: any) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  // Handle media type filter change
+  const handleMediaTypeChange = (type: string, checked: boolean) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      mediaType: checked
+        ? [...prev.mediaType, type]
+        : prev.mediaType.filter((t) => t !== type),
+    }))
+  }
+
+  // Handle genre filter change
+  const handleGenreChange = (genreId: number, checked: boolean) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      genres: checked
+        ? [...prev.genres, genreId]
+        : prev.genres.filter((id) => id !== genreId),
+    }))
+  }
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilterOptions({
+      mediaType: ["movie", "tv"],
+      genres: [],
+      year: [1990, new Date().getFullYear()],
+      rating: 0,
+      language: "en",
+    })
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500 animate-pulse mb-4 mx-auto"></div>
-          <p className="text-slate-400">Loading amazing content...</p>
+          <div className="h-12 w-12 rounded bg-gradient-to-br from-purple-500 to-pink-500 animate-pulse mb-4 mx-auto"></div>
+          <p className="text-slate-400 text-lg">Loading amazing content...</p>
+          <div className="mt-8 flex flex-col gap-4 items-center">
+            <div className="w-64 h-4 bg-slate-800 rounded animate-pulse"></div>
+            <div className="w-48 h-4 bg-slate-800 rounded animate-pulse"></div>
+            <div className="w-56 h-4 bg-slate-800 rounded animate-pulse"></div>
+          </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
-          <Button
-            onClick={() => {
-              window.location.reload();
-            }}
-            className="bg-purple-500 hover:bg-purple-600"
-          >
+          <p className="text-red-400 mb-4 text-lg">{error}</p>
+          <Button onClick={() => window.location.reload()} className="bg-purple-500 hover:bg-purple-600">
             Try Again
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Navigation */}
-      <nav
-        className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-950/95 backdrop-blur-md"
-        style={{ borderBottomWidth: 0 }}
-      >
-        <div className="container mx-auto px-6 py-4">
+      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center">
-                <Play className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                CineContext
-              </span>
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+              <span className="text-xl font-bold">CineContext</span>
             </div>
-            {/* <div className="flex-1 max-w-2xl mx-12">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <Input
-                  placeholder="Search by emotion, theme, or title..."
-                  className="pl-12 pr-4 py-3 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
-                />
-              </div>
-            </div> */}
+
+            {/* Search Bar */}
             <SearchBar className="flex-1 max-w-2xl mx-8" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-slate-800/50 rounded-xl"
-                >
-                  <User className="h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-slate-800/95 backdrop-blur-md border-slate-700/50 rounded-xl"
+
+            {/* User Controls */}
+            <div className="flex items-center gap-3">
+              {/* Theme Toggle */}
+              {/* <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="text-white hover:bg-slate-800"
               >
-                <DropdownMenuItem className="text-white hover:bg-slate-700/50 rounded-lg">
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-slate-700/50 rounded-lg">
-                  Watchlist
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-slate-700/50 rounded-lg">
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-slate-700/50 rounded-lg">
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                {theme === "dark" ? <SunMedium className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button> */}
+
+              {/* User Profile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-slate-800">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                  <DropdownMenuItem className="text-white hover:bg-slate-700">
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-slate-700">Watchlist</DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-slate-700">Settings</DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-slate-700">
+                    <Link to="/login">Sign Out</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent leading-tight">
-            Discover Stories
-            <br />
-            That Feel Right
-          </h1>
-          <p className="text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Find the perfect movie or show for your mood, moment, and mindset
-          </p>
-          <div className="mb-16">
-            <Select>
-              <SelectTrigger className="w-96 mx-auto bg-slate-800/50 border-slate-700/50 text-white h-14 rounded-xl text-lg backdrop-blur-sm">
-                <SelectValue placeholder="What are you in the mood for..." />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800/95 backdrop-blur-md border-slate-700/50 rounded-xl">
-                <SelectItem value="heartbroken" className="text-white hover:bg-slate-700/50 py-3">
-                  💔 When you're heartbroken
-                </SelectItem>
-                <SelectItem value="raining" className="text-white hover:bg-slate-700/50 py-3">
-                  🌧️ When it's raining outside
-                </SelectItem>
-                <SelectItem value="starting-over" className="text-white hover:bg-slate-700/50 py-3">
-                  🌱 When you're starting over
-                </SelectItem>
-                <SelectItem
-                  value="need-motivation"
-                  className="text-white hover:bg-slate-700/50 py-3"
-                >
-                  💪 When you need motivation
-                </SelectItem>
-                <SelectItem
-                  value="feeling-nostalgic"
-                  className="text-white hover:bg-slate-700/50 py-3"
-                >
-                  🕰️ When feeling nostalgic
-                </SelectItem>
-                <SelectItem value="cant-sleep" className="text-white hover:bg-slate-700/50 py-3">
-                  🌙 When you can't sleep
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {heroContent && (
+        <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+          <ContentBackdrop
+            contentId={heroContent.id}
+            contentType={heroContent.type}
+            contentTitle={heroContent.title}
+            className="absolute inset-0"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/30"></div>
+          </ContentBackdrop>
 
-          {/* Watch When Dropdown */}
-          {/* <div className="mb-12">
-            <Select>
-              <SelectTrigger className="w-80 mx-auto bg-slate-800 border-slate-700 text-white">
-                <SelectValue placeholder="Watch When..." />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="heartbroken" className="text-white hover:bg-slate-700">
-                  you're heartbroken
-                </SelectItem>
-                <SelectItem value="raining" className="text-white hover:bg-slate-700">
-                  it's raining
-                </SelectItem>
-                <SelectItem value="starting-over" className="text-white hover:bg-slate-700">
-                  you're starting over
-                </SelectItem>
-                <SelectItem value="need-motivation" className="text-white hover:bg-slate-700">
-                  you need motivation
-                </SelectItem>
-                <SelectItem value="binge-watching" className="text-white hover:bg-slate-700">
-                  you want to binge-watch
-                </SelectItem>
-                <SelectItem value="cant-sleep" className="text-white hover:bg-slate-700">
-                  you can't sleep
-                </SelectItem>
-                <SelectItem value="weekend-vibes" className="text-white hover:bg-slate-700">
-                  it's weekend time
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
+          <div className="container mx-auto px-4 h-full flex items-center relative">
+            <div className="max-w-2xl">
+              <div className="mb-6">
+                <ContentTitleLogo
+                  contentId={heroContent.id}
+                  contentType={heroContent.type}
+                  contentTitle={heroContent.title}
+                  className="mb-2"
+                  fallbackClassName="text-4xl md:text-6xl font-bold"
+                />
+              </div>
 
-          {/* Featured Carousel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredContent.map(title => (
-              <Link key={title.id} to={`/${title.type}/${title.id}`}>
-                {/* <Card className="bg-slate-800 border-slate-700 overflow-hidden group cursor-pointer hover:scale-105 transition-transform">
-                  <div className="relative">
-                    <img
-                      src={title.image || "/placeholder.svg"}
-                      alt={title.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Play className="h-12 w-12 text-white" />
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-white mb-2">{title.title}</h3>
-                    <div className="flex flex-wrap gap-1">
-                      {title.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="bg-purple-500/20 text-purple-300 text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card> */}
-                <Card
-                  key={title.id}
-                  style={{ padding: 0 }}
-                  className="bg-slate-800/30 border-slate-700/30 overflow-hidden group cursor-pointer hover:scale-105 hover:bg-slate-800/50 transition-all duration-300 rounded-2xl backdrop-blur-sm"
+              <div className="flex items-center gap-4 mb-4">
+                <Badge className="bg-purple-500 text-white border-none">
+                  {heroContent.type === "movie" ? "Movie" : "TV Show"}
+                </Badge>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-white">{heroContent.rating}</span>
+                </div>
+                <span className="text-slate-300">{heroContent.year}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {heroContent.genres?.map((genre) => (
+                  <Badge key={genre} variant="secondary" className="bg-slate-800/80 text-slate-300">
+                    {genre}
+                  </Badge>
+                ))}
+              </div>
+
+              <p className="text-lg text-slate-300 mb-8 line-clamp-3">{heroContent.description}</p>
+
+              <div className="flex flex-wrap gap-4">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                  <Play className="h-4 w-4 mr-2" />
+                  Watch Now
+                </Button>
+                <Button
+                  variant="outline"
+                  className={`border-slate-600 ${
+                    isInWatchlist(heroContent)
+                      ? "bg-purple-500/20 border-purple-500 text-purple-300"
+                      : "text-slate-300"
+                  }`}
+                  onClick={() => toggleWatchlist(heroContent)}
                 >
-                  <div className="relative">
-                    <div className="aspect-[16/9] overflow-hidden">
-                      <img
-                        src={title.image || '/placeholder.svg'}
-                        alt={title.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-                        <Play className="h-8 w-8 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <CardContent className="p-6" style={{ paddingTop: 0 }}>
-                    <h3
-                      className="font-semibold text-white mb-3 text-lg"
-                      style={{ textAlign: 'start' }}
-                    >
-                      {title.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {title.tags.map(tag => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="bg-purple-500/20 text-purple-300 text-xs"
-                          // key={tag}
-                          // className="bg-purple-500/20 text-purple-300 border-purple-500/30 px-3 py-1 rounded-full"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                  {isInWatchlist(heroContent) ? (
+                    <Bookmark className="h-4 w-4 mr-2 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-2" />
+                  )}
+                  {isInWatchlist(heroContent) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
+                <Button variant="outline" className="border-slate-600 text-slate-300">
+                  <Info className="h-4 w-4 mr-2" />
+                  More Info
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Continue Watching Section */}
-      <section className="py-8 px-4 bg-slate-900/30">
+      {/* <section className="py-8 px-4 bg-slate-900/30">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white">Continue Watching</h2>
@@ -582,18 +777,23 @@ export default function CineContextPage() {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {continueWatching.map(item => (
+            {continueWatching.map((item) => (
               <Card
                 key={item.id}
-                className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer"
+                className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer group"
               >
                 <CardContent className="p-4">
                   <div className="flex gap-4">
-                    <img
-                      src={item.image || '/placeholder.svg'}
-                      alt={item.title}
-                      className="w-16 h-24 object-cover rounded"
-                    />
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.title}
+                        className="w-16 h-24 object-cover rounded"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Play className="h-8 w-8 text-white" />
+                      </div>
+                    </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-white mb-1">{item.title}</h4>
                       <p className="text-sm text-slate-400 mb-2">{item.episode}</p>
@@ -611,62 +811,417 @@ export default function CineContextPage() {
             ))}
           </div>
         </div>
-      </section>
+        </section> */}
 
-      {/* Trending Now Section */}
-      <section className="py-8 px-4">
+      {/* Trending Movies Section */}
+      {/* <section className="py-8 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
               <Flame className="h-6 w-6 text-orange-500" />
-              Trending Now
+              Trending Movies
             </h2>
-            <Button variant="ghost" className="text-purple-400 hover:text-purple-300">
-              View All <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(trendingMoviesRef, "left")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(trendingMoviesRef, "right")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {trendingContent.map(item => (
-              <Link key={item.id} to={`/${item.type}/${item.id}`}>
-                <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex gap-4">
+          <div
+            ref={trendingMoviesRef}
+            className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+          >
+            {trendingMovies.map((movie) => (
+              <div
+                key={movie.id}
+                className="flex-shrink-0 w-[250px] snap-start"
+              >
+                <Link to={`/movie/${movie.id}`}>
+                  <div className="relative group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
                       <img
-                        src={item.image || '/placeholder.svg'}
-                        alt={item.title}
-                        className="w-20 h-12 object-cover rounded"
+                        src={movie.image || "/placeholder.svg"}
+                        alt={movie.title}
+                        className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-white mb-1">{item.title}</h4>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-slate-300">{item.rating}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-3 w-3 text-green-400" />
-                            <span className="text-green-400">{item.change}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Eye className="h-3 w-3 text-slate-400" />
-                            <span className="text-slate-400">{item.viewers}</span>
-                          </div>
-                        </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                        <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Play className="h-4 w-4 mr-1" />
+                          Watch
+                        </Button>
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge className="bg-orange-500 text-white border-none">Trending</Badge>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    <div className="mt-2">
+                      <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <span>{movie.year}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {movie.genres?.slice(0, 2).map((genre) => (
+                          <Badge
+                            key={genre}
+                            variant="secondary"
+                            className="bg-slate-800 text-slate-300 text-xs"
+                          >
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-2 w-full ${
+                    isInWatchlist(movie)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(movie)}
+                >
+                  {isInWatchlist(movie) ? (
+                    <Bookmark className="h-4 w-4 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-1" />
+                  )}
+                  {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section> */}
+      {/* <section className="py-8 px-4">
+  <div className="container mx-auto">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+        <Flame className="h-6 w-6 text-orange-500" />
+        Trending Movies
+      </h2>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => scroll(trendingMoviesRef, "left")}
+          className="border-slate-700 text-slate-400 hover:text-white"
+        >
+          <ChevronRight className="h-4 w-4 rotate-180" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => scroll(trendingMoviesRef, "right")}
+          className="border-slate-700 text-slate-400 hover:text-white"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+    <div
+      ref={trendingMoviesRef}
+      className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory
+                 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-orange-500 
+                 hover:scrollbar-thumb-orange-400 scrollbar-thumb-rounded-full 
+                 scrollbar-track-rounded-full"
+      style={{
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+    >
+      {trendingMovies.map((movie) => (
+        <div
+          key={movie.id}
+          className="flex-shrink-0 w-[250px] snap-start"
+        >
+          <Link to={`/movie/${movie.id}`}>
+            <div className="relative group cursor-pointer">
+              <div className="relative overflow-hidden rounded-lg">
+                <img
+                  src={movie.image || "/placeholder.svg"}
+                  alt={movie.title}
+                  className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                  <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                    <Play className="h-4 w-4 mr-1" />
+                    Watch
+                  </Button>
+                </div>
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <Badge className="bg-orange-500 text-white border-none">Trending</Badge>
+                </div>
+              </div>
+              <div className="mt-2">
+                <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <span>{movie.year}</span>
+                  <span>•</span>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    <span>{movie.rating}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {movie.genres?.slice(0, 2).map((genre) => (
+                    <Badge
+                      key={genre}
+                      variant="secondary"
+                      className="bg-slate-800 text-slate-300 text-xs"
+                    >
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`mt-2 w-full ${
+              isInWatchlist(movie)
+                ? "text-purple-400 hover:text-purple-300"
+                : "text-slate-400 hover:text-white"
+            }`}
+            onClick={() => toggleWatchlist(movie)}
+          >
+            {isInWatchlist(movie) ? (
+              <Bookmark className="h-4 w-4 mr-1 fill-current" />
+            ) : (
+              <Plus className="h-4 w-4 mr-1" />
+            )}
+            {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+          </Button>
+        </div>
+      ))}
+    </div>
+  </div>
+</section> */}
+
+<section className="py-8 px-4">
+  <div className="container mx-auto">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+        <Flame className="h-6 w-6 text-orange-500" />
+        Trending Movies
+      </h2>
+    </div>
+    <div
+      ref={trendingMoviesRef}
+      className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory
+                 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-orange-500 
+                 hover:scrollbar-thumb-orange-400 scrollbar-thumb-rounded-full 
+                 scrollbar-track-rounded-full"
+      style={{
+        scrollbarWidth: 'none',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+    >
+      {trendingMovies.map((movie) => (
+        <div
+          key={movie.id}
+          className="flex-shrink-0 w-[250px] snap-start"
+        >
+          <Link to={`/movie/${movie.id}`}>
+            <div className="relative group cursor-pointer">
+              <div className="relative overflow-hidden rounded-lg">
+                <img
+                  src={movie.image || "/placeholder.svg"}
+                  alt={movie.title}
+                  className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                  <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                    <Play className="h-4 w-4 mr-1" />
+                    Watch
+                  </Button>
+                </div>
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <Badge className="bg-orange-500 text-white border-none">Trending</Badge>
+                </div>
+              </div>
+              <div className="mt-2">
+                <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <span>{movie.year}</span>
+                  <span>•</span>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    <span>{movie.rating}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {movie.genres?.slice(0, 2).map((genre) => (
+                    <Badge
+                      key={genre}
+                      variant="secondary"
+                      className="bg-slate-800 text-slate-300 text-xs"
+                    >
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`mt-2 w-full ${
+              isInWatchlist(movie)
+                ? "text-purple-400 hover:text-purple-300"
+                : "text-slate-400 hover:text-white"
+            }`}
+            onClick={() => toggleWatchlist(movie)}
+          >
+            {isInWatchlist(movie) ? (
+              <Bookmark className="h-4 w-4 mr-1 fill-current" />
+            ) : (
+              <Plus className="h-4 w-4 mr-1" />
+            )}
+            {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+          </Button>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+      {/* Trending TV Shows Section */}
+      <section className="py-8 px-4 bg-slate-900/30">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Tv className="h-6 w-6 text-purple-500" />
+              Trending TV Shows
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(trendingTVShowsRef, "left")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(trendingTVShowsRef, "right")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div
+            ref={trendingTVShowsRef}
+            className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+             style={{
+        scrollbarWidth: 'none',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+          >
+            {trendingTVShows.map((show) => (
+              <div
+                key={show.id}
+                className="flex-shrink-0 w-[250px] snap-start"
+              >
+                <Link to={`/show/${show.id}`}>
+                  <div className="relative group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
+                      <img
+                        src={show.image || "/placeholder.svg"}
+                        alt={show.title}
+                        className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                        <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Play className="h-4 w-4 mr-1" />
+                          Watch
+                        </Button>
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge className="bg-purple-500 text-white border-none">TV Show</Badge>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="font-semibold text-white text-lg line-clamp-1">{show.title}</h3>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <span>{show.year}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{show.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {show.genres?.slice(0, 2).map((genre) => (
+                          <Badge
+                            key={genre}
+                            variant="secondary"
+                            className="bg-slate-800 text-slate-300 text-xs"
+                          >
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-2 w-full ${
+                    isInWatchlist(show)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(show)}
+                >
+                  {isInWatchlist(show) ? (
+                    <Bookmark className="h-4 w-4 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-1" />
+                  )}
+                  {isInWatchlist(show) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Mood Collections */}
-      <section className="py-8 px-4 bg-slate-900/30">
+      <section className="py-8 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">Mood Collections</h2>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-yellow-500" />
+              Mood Collections
+            </h2>
             <Button variant="ghost" className="text-purple-400 hover:text-purple-300">
               View All <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
@@ -702,319 +1257,608 @@ export default function CineContextPage() {
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Sidebar - Filters */}
-          <div className="lg:col-span-1">
-            <Card className="bg-slate-800 border-slate-700 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Filters</h3>
-
-              {/* Content Type */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Content Type</h4>
-                <div className="space-y-2">
-                  {['Movies', 'TV Shows', 'Documentaries', 'Limited Series'].map(type => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <Checkbox id={type} className="border-slate-600" />
-                      <label htmlFor={type} className="text-sm text-slate-300">
-                        {type}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Emotions */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Emotions</h4>
-                <div className="space-y-2">
-                  {['Happy', 'Sad', 'Anxious', 'Inspired', 'Nostalgic', 'Hopeful'].map(emotion => (
-                    <div key={emotion} className="flex items-center space-x-2">
-                      <Checkbox id={emotion} className="border-slate-600" />
-                      <label htmlFor={emotion} className="text-sm text-slate-300">
-                        {emotion}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Themes */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Themes</h4>
-                <div className="space-y-2">
-                  {['Redemption', 'Identity', 'Rebellion', 'Love', 'Family', 'Growth'].map(
-                    theme => (
-                      <div key={theme} className="flex items-center space-x-2">
-                        <Checkbox id={theme} className="border-slate-600" />
-                        <label htmlFor={theme} className="text-sm text-slate-300">
-                          {theme}
-                        </label>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              {/* Life Moments */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Life Moments</h4>
-                <div className="space-y-2">
-                  {['Breakups', 'Moving On', 'Study Time', 'Family Bonding', 'New Beginnings'].map(
-                    moment => (
-                      <div key={moment} className="flex items-center space-x-2">
-                        <Checkbox id={moment} className="border-slate-600" />
-                        <label htmlFor={moment} className="text-sm text-slate-300">
-                          {moment}
-                        </label>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              {/* Character Arcs */}
-              <div>
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Character Arcs</h4>
-                <div className="space-y-2">
-                  {['Anti-Hero', 'Chosen One', 'Broken Genius', 'Underdog', 'Mentor'].map(arc => (
-                    <div key={arc} className="flex items-center space-x-2">
-                      <Checkbox id={arc} className="border-slate-600" />
-                      <label htmlFor={arc} className="text-sm text-slate-300">
-                        {arc}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
+      {/* Top Rated Movies */}
+      <section className="py-8 px-4 bg-slate-900/30">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Award className="h-6 w-6 text-yellow-500" />
+              Top Rated Movies
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(topRatedMoviesRef, "left")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(topRatedMoviesRef, "right")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-
-          {/* Center Feed */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {popularContent.map(content => (
-                <Link key={content.id} to={`/${content.type}/${content.id}`}>
-                  <Card
-                    style={{ padding: 0 }}
-                    className="bg-slate-800 border-slate-700 overflow-hidden group cursor-pointer hover:scale-105 transition-transform"
-                  >
-                    <div className="relative">
+          <div
+            ref={topRatedMoviesRef}
+            className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+             style={{
+        scrollbarWidth: 'none',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+          >
+            {topRatedMovies.map((movie) => (
+              <div
+                key={movie.id}
+                className="flex-shrink-0 w-[250px] snap-start"
+              >
+                <Link to={`/movie/${movie.id}`}>
+                  <div className="relative group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
                       <img
-                        src={content.image || '/placeholder.svg'}
-                        alt={content.title}
-                        // className="w-full h-64 object-cover"
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        src={movie.image || "/placeholder.svg"}
+                        alt={movie.title}
+                        className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="h-8 w-8 text-white" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                        <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Play className="h-4 w-4 mr-1" />
+                          Watch
+                        </Button>
                       </div>
-                      <div className="absolute top-2 left-2 flex gap-2">
-                        <Badge
-                          className={`${content.type === 'show' ? 'bg-purple-500' : 'bg-blue-500'} text-white text-xs`}
-                        >
-                          {content.type === 'show' ? 'TV Show' : 'Movie'}
-                        </Badge>
-                        {content.isNew && (
-                          <Badge className="bg-green-500 text-white text-xs">New</Badge>
-                        )}
-                        {content.isTrending && (
-                          <Badge className="bg-orange-500 text-white text-xs">
-                            <Flame className="h-3 w-3 mr-1" />
-                            Trending
-                          </Badge>
-                        )}
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge className="bg-yellow-500 text-white border-none">Top Rated</Badge>
                       </div>
                     </div>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-white">{content.title}</h3>
-                        <span className="text-sm text-slate-400">{content.year}</span>
-                      </div>
-
-                      <div className="flex items-center gap-4 mb-3 text-sm text-slate-400">
+                    <div className="mt-2">
+                      <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <span>{movie.year}</span>
+                        <span>•</span>
                         <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span>{content.rating}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{content.duration}</span>
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
                         </div>
                       </div>
-
-                      <p className="text-sm text-slate-300 mb-3">{content.description}</p>
-
-                      <div className="flex flex-wrap gap-1">
-                        {content.tags.map(tag => (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {movie.genres?.slice(0, 2).map((genre) => (
                           <Badge
-                            key={tag}
+                            key={genre}
                             variant="secondary"
-                            className="bg-purple-500/20 text-purple-300 text-xs"
+                            className="bg-slate-800 text-slate-300 text-xs"
                           >
-                            {tag}
+                            {genre}
                           </Badge>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Sidebar - Recommendations */}
-          <div className="lg:col-span-1">
-            <Card className="bg-slate-800 border-slate-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Recommended for You</h3>
-              <div className="space-y-4">
-                {recommendations.map(rec => (
-                  <Link key={rec.id} to={`/${rec.type}/${rec.id}`}>
-                    <div className="flex gap-3 cursor-pointer hover:bg-slate-700 p-2 rounded transition-colors">
-                      <div className="relative">
-                        <img
-                          src={rec.image || '/placeholder.svg'}
-                          alt={rec.title}
-                          className="w-12 h-16 object-cover rounded"
-                        />
-                        <Badge
-                          className={`absolute -top-1 -right-1 ${
-                            rec.type === 'show' ? 'bg-purple-500' : 'bg-blue-500'
-                          } text-white text-xs px-1 py-0`}
-                        >
-                          {rec.type === 'show' ? 'TV' : 'M'}
-                        </Badge>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-white mb-1">{rec.title}</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {rec.tags.map(tag => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="bg-slate-600 text-slate-300 text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-2 w-full ${
+                    isInWatchlist(movie)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(movie)}
+                >
+                  {isInWatchlist(movie) ? (
+                    <Bookmark className="h-4 w-4 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-1" />
+                  )}
+                  {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
               </div>
-            </Card>
-
-            {/* New Releases */}
-            <Card className="bg-slate-800 border-slate-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-4">New Releases</h3>
-              <div className="space-y-4">
-                {newReleases.map(release => (
-                  <Link key={release.id} to={`/${release.type}/${release.id}`}>
-                    <div className="flex gap-3 cursor-pointer hover:bg-slate-700 p-2 rounded transition-colors">
-                      <img
-                        src={release.image || '/placeholder.svg'}
-                        alt={release.title}
-                        className="w-12 h-16 object-cover rounded"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-white mb-1">{release.title}</h4>
-                        <p className="text-xs text-slate-400 mb-1">{release.year}</p>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-slate-300">{release.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-
-            {/* Featured People */}
-            <Card className="bg-slate-800 border-slate-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Featured People</h3>
-              <div className="space-y-4">
-                {featuredPeople.map(person => (
-                  <Link key={person.id} to={`/person/${person.id}`}>
-                    <div className="flex gap-3 cursor-pointer hover:bg-slate-700 p-2 rounded transition-colors">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={person.image || '/placeholder.svg'} alt={person.name} />
-                        <AvatarFallback className="bg-purple-500 text-white">
-                          {person.name
-                            .split(' ')
-                            .map(n => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-medium text-white">{person.name}</h4>
-                          {person.trending && (
-                            <Badge className="bg-orange-500 text-white text-xs">Trending</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-400 mb-1">{person.role}</p>
-                        <p className="text-xs text-purple-400">{person.knownFor}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-
-            {/* Upcoming Releases */}
-            <Card className="bg-slate-800 border-slate-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Coming Soon</h3>
-              <div className="space-y-4">
-                {upcomingContent.map(upcoming => (
-                  <Link key={upcoming.id} to={`/${upcoming.type}/${upcoming.id}`}>
-                    <div className="flex gap-3 cursor-pointer hover:bg-slate-700 p-2 rounded transition-colors">
-                      <img
-                        src={upcoming.image || '/placeholder.svg'}
-                        alt={upcoming.title}
-                        className="w-12 h-16 object-cover rounded"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-white mb-1">{upcoming.title}</h4>
-                        <p className="text-xs text-slate-400 mb-1">{upcoming.year}</p>
-                        <div className="flex items-center gap-1">
-                          <Heart className="h-3 w-3 text-red-400" />
-                          <span className="text-xs text-slate-300">{upcoming.rating} rating</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-
-            {/* Trending Moods */}
-            <Card className="bg-slate-800 border-slate-700 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Trending Moods</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Binge-Worthy Series</span>
-                  <span className="text-purple-400">↗ 28%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Cozy Movie Nights</span>
-                  <span className="text-purple-400">↗ 24%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Self-Discovery</span>
-                  <span className="text-purple-400">↗ 18%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Workplace Drama</span>
-                  <span className="text-purple-400">↗ 15%</span>
-                </div>
-              </div>
-            </Card>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Now Playing Movies */}
+      <section className="py-8 px-4">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Popcorn className="h-6 w-6 text-red-500" />
+              Now Playing in Theaters
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(nowPlayingMoviesRef, "left")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(nowPlayingMoviesRef, "right")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div
+            ref={nowPlayingMoviesRef}
+            className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+             style={{
+        scrollbarWidth: 'none',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+          >
+            {nowPlayingMovies.map((movie) => (
+              <div
+                key={movie.id}
+                className="flex-shrink-0 w-[250px] snap-start"
+              >
+                <Link to={`/movie/${movie.id}`}>
+                  <div className="relative group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
+                      <img
+                        src={movie.image || "/placeholder.svg"}
+                        alt={movie.title}
+                        className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                        <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Play className="h-4 w-4 mr-1" />
+                          Watch
+                        </Button>
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge className="bg-green-500 text-white border-none">Now Playing</Badge>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <span>{movie.year}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {movie.genres?.slice(0, 2).map((genre) => (
+                          <Badge
+                            key={genre}
+                            variant="secondary"
+                            className="bg-slate-800 text-slate-300 text-xs"
+                          >
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-2 w-full ${
+                    isInWatchlist(movie)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(movie)}
+                >
+                  {isInWatchlist(movie) ? (
+                    <Bookmark className="h-4 w-4 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-1" />
+                  )}
+                  {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trending People */}
+      <section className="py-8 px-4 bg-slate-900/30">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <User className="h-6 w-6 text-blue-500" />
+              Trending People
+            </h2>
+            <Button variant="ghost" className="text-purple-400 hover:text-purple-300">
+              View All <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {trendingPeople.slice(0, 6).map((person) => (
+              <Link key={person.id} to={`/person/${person.id}`}>
+                <div className="text-center group cursor-pointer">
+                  <div className="relative mb-3">
+                    <Avatar className="h-32 w-32 mx-auto">
+                      <AvatarImage src={person.image || "/placeholder.svg"} alt={person.name} />
+                      <AvatarFallback className="bg-purple-500 text-white text-2xl">
+                        {person.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    {person.trending && (
+                      <Badge className="absolute -top-1 -right-1 bg-orange-500 text-white border-none">
+                        <Flame className="h-3 w-3 mr-1" />
+                        Trending
+                      </Badge>
+                    )}
+                  </div>
+                  <h4 className="font-medium text-white group-hover:text-purple-400 transition-colors">
+                    {person.name}
+                  </h4>
+                  <p className="text-sm text-slate-400">{person.role}</p>
+                  <p className="text-xs text-purple-400 mt-1 line-clamp-1">{person.knownFor}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Movies */}
+      <section className="py-8 px-4">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Calendar className="h-6 w-6 text-cyan-500" />
+              Coming Soon
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(upcomingMoviesRef, "left")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll(upcomingMoviesRef, "right")}
+                className="border-slate-700 text-slate-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div
+            ref={upcomingMoviesRef}
+            className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+             style={{
+        scrollbarWidth: 'none',
+        scrollbarColor: '#f97316 #1e293b'
+      }}
+          >
+            {upcomingMovies.map((movie) => (
+              <div
+                key={movie.id}
+                className="flex-shrink-0 w-[250px] snap-start"
+              >
+                <Link to={`/movie/${movie.id}`}>
+                  <div className="relative group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
+                      <img
+                        src={movie.image || "/placeholder.svg"}
+                        alt={movie.title}
+                        className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-4">
+                        <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Info className="h-4 w-4 mr-1" />
+                          Details
+                        </Button>
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge className="bg-cyan-500 text-white border-none">Coming Soon</Badge>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="font-semibold text-white text-lg line-clamp-1">{movie.title}</h3>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <span>{movie.year}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {movie.genres?.slice(0, 2).map((genre) => (
+                          <Badge
+                            key={genre}
+                            variant="secondary"
+                            className="bg-slate-800 text-slate-300 text-xs"
+                          >
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-2 w-full ${
+                    isInWatchlist(movie)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(movie)}
+                >
+                  {isInWatchlist(movie) ? (
+                    <Bookmark className="h-4 w-4 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-1" />
+                  )}
+                  {isInWatchlist(movie) ? "In Watchlist" : "Add to Watchlist"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Explore by Genre */}
+      <section className="py-8 px-4 bg-slate-900/30">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Filter className="h-6 w-6 text-green-500" />
+              Explore by Genre
+            </h2>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="border-slate-700 text-slate-400 hover:text-white"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </Button>
+          </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <Card className="bg-slate-800 border-slate-700 p-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Media Type Filter */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-300 mb-3">Media Type</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="movie-filter"
+                        checked={filterOptions.mediaType.includes("movie")}
+                        onCheckedChange={(checked) => handleMediaTypeChange("movie", checked as boolean)}
+                        className="border-slate-600"
+                      />
+                      <Label htmlFor="movie-filter" className="text-sm text-slate-300 flex items-center gap-2">
+                        <Film className="h-4 w-4" />
+                        Movies
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="tv-filter"
+                        checked={filterOptions.mediaType.includes("tv")}
+                        onCheckedChange={(checked) => handleMediaTypeChange("tv", checked as boolean)}
+                        className="border-slate-600"
+                      />
+                      <Label htmlFor="tv-filter" className="text-sm text-slate-300 flex items-center gap-2">
+                        <Tv className="h-4 w-4" />
+                        TV Shows
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Genre Filter */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-300 mb-3">Genres</h4>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {[...movieGenres, ...tvGenres]
+                      .filter((genre, index, self) => self.findIndex((g) => g.id === genre.id) === index)
+                      .slice(0, 8)
+                      .map((genre) => (
+                        <div key={genre.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`genre-${genre.id}`}
+                            checked={filterOptions.genres.includes(genre.id)}
+                            onCheckedChange={(checked) => handleGenreChange(genre.id, checked as boolean)}
+                            className="border-slate-600"
+                          />
+                          <Label htmlFor={`genre-${genre.id}`} className="text-sm text-slate-300">
+                            {genre.name}
+                          </Label>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Year Range Filter */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-300 mb-3">Year Range</h4>
+                  <div className="space-y-3">
+                    <Slider
+                      value={filterOptions.year}
+                      onValueChange={(value) => handleFilterChange("year", value)}
+                      min={1990}
+                      max={new Date().getFullYear()}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>{filterOptions.year[0]}</span>
+                      <span>{filterOptions.year[1]}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-300 mb-3">Minimum Rating</h4>
+                  <div className="space-y-3">
+                    <Slider
+                      value={[filterOptions.rating]}
+                      onValueChange={(value) => handleFilterChange("rating", value[0])}
+                      min={0}
+                      max={10}
+                      step={0.5}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>0</span>
+                      <span className="text-yellow-400">{filterOptions.rating}</span>
+                      <span>10</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mt-6">
+                <Button variant="outline" onClick={resetFilters} className="border-slate-600 text-slate-300">
+                  Reset Filters
+                </Button>
+                <div className="text-sm text-slate-400">
+                  Showing {filteredContent.length} results
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Filtered Content Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {filteredContent.slice(0, 24).map((item) => (
+              <div key={`${item.type}-${item.id}`} className="group">
+                <Link to={`/${item.type}/${item.id}`}>
+                  <div className="relative cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.title}
+                       className="w-full h-[375px] object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-3">
+                        <Button size="sm" className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+                          <Play className="h-3 w-3 mr-1" />
+                          Watch
+                        </Button>
+                      </div>
+                      <div className="absolute top-2 right-2">
+                        <Badge className={`${item.type === "movie" ? "bg-blue-500" : "bg-purple-500"} text-white border-none text-xs`}>
+                          {item.type === "movie" ? "Movie" : "TV"}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="font-medium text-white text-sm line-clamp-2">{item.title}</h3>
+                      <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                        <span>{item.year}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{item.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`mt-1 w-full text-xs ${
+                    isInWatchlist(item)
+                      ? "text-purple-400 hover:text-purple-300"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                  onClick={() => toggleWatchlist(item)}
+                >
+                  {isInWatchlist(item) ? (
+                    <Bookmark className="h-3 w-3 mr-1 fill-current" />
+                  ) : (
+                    <Plus className="h-3 w-3 mr-1" />
+                  )}
+                  {isInWatchlist(item) ? "In Watchlist" : "Add"}
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {filteredContent.length > 24 && (
+            <div className="text-center mt-8">
+              <Button className="bg-purple-500 hover:bg-purple-600">
+                Load More Content
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 border-t border-slate-800 py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="h-8 w-8 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                <span className="text-xl font-bold text-white">CineContext</span>
+              </div>
+              <p className="text-slate-400 text-sm">
+                Discover stories that feel right. Your personal guide to movies and TV shows.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Explore</h4>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li><Link to="/movies" className="hover:text-white transition-colors">Movies</Link></li>
+                <li><Link to="/shows" className="hover:text-white transition-colors">TV Shows</Link></li>
+                <li><Link to="/genres" className="hover:text-white transition-colors">Genres</Link></li>
+                <li><Link to="/trending" className="hover:text-white transition-colors">Trending</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Account</h4>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li><Link to="/profile" className="hover:text-white transition-colors">Profile</Link></li>
+                <li><Link to="/watchlist" className="hover:text-white transition-colors">Watchlist</Link></li>
+                <li><Link to="/settings" className="hover:text-white transition-colors">Settings</Link></li>
+                <li><Link to="/help" className="hover:text-white transition-colors">Help</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Connect</h4>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors">Terms</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-800 mt-8 pt-8 text-center text-sm text-slate-400">
+            <p>&copy; 2024 CineContext. All rights reserved. Powered by TMDB.</p>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }

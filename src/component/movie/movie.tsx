@@ -27,6 +27,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Avatar, AvatarFallback } from '../../ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { Button } from '../../ui/button';
+import { ContentBackdrop } from '../logo/contentBackground';
+import { ContentTitleLogo } from '../logo/title-logo';
 // import { Button } from "@/components/ui/button"
 // import { Badge } from "@/components/ui/badge"
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -489,13 +491,22 @@ export default function MovieDetailsPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Background Image */}
-      <div
+      {/* <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${getImageUrl(movie.backdrop_path, 'w1280')})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/80"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50"></div>
-      </div>
+      </div> */}
+      <ContentBackdrop
+        contentId={movie.id}
+        contentType="movie"
+        contentTitle={movie.title}
+        className="absolute inset-0"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-slate-950/30"></div>
+      </ContentBackdrop>
 
       <div className="relative">
         {/* Header */}
@@ -597,9 +608,18 @@ export default function MovieDetailsPage() {
                 {/* Movie Info */}
                 <div className="flex-1 space-y-6">
                   <div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                    {/* <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
                       {movie.title}
-                    </h1>
+                    </h1> */}
+                    <div className="mb-4">
+                      <ContentTitleLogo
+                        contentId={movie.id}
+                        contentType="movie"
+                        contentTitle={movie.title}
+                        className="mb-2"
+                        fallbackClassName="text-4xl md:text-5xl font-bold"
+                      />
+                    </div>
                     {movie.tagline && (
                       <p className="text-lg text-slate-300 italic mb-4">"{movie.tagline}"</p>
                     )}
@@ -738,6 +758,33 @@ export default function MovieDetailsPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+               <div className="mb-8">
+                <Card className="bg-slate-900/80 backdrop-blur border-slate-700 overflow-hidden" style={{padding:0}}>
+                  <ContentBackdrop
+                    contentId={movie.id}
+                    contentType="movie"
+                    contentTitle={movie.title}
+                    className="relative h-64 md:h-80 lg:h-96"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          {/* <h3 className="text-2xl font-bold text-white mb-2">Behind the Scenes</h3> */}
+                          <p className="text-slate-300 max-w-2xl">
+                            Get an immersive look into the world of {movie.title}
+                          </p>
+                        </div>
+                        <Button className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                          <Play className="h-4 w-4 mr-2" />
+                          Watch Trailer
+                        </Button>
+                      </div>
+                    </div>
+                  </ContentBackdrop>
+                </Card>
               </div>
 
               {/* Detailed Information Tabs */}
