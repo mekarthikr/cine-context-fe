@@ -5,8 +5,6 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
-// import pluginReduxSaga from 'eslint-plugin-redux-saga';
-// import pluginTypedReduxSaga from '@jambit/eslint-plugin-typed-redux-saga';
 import eslintPluginJest from 'eslint-plugin-jest';
 
 // import importOrder from './import-order.mjs';
@@ -83,12 +81,10 @@ export default [
     },
   },
 
-  // Custom Plugins (React-Hooks, Redux-Saga, Typed-Redux-Saga)
+  // Custom Plugins (React-Hooks)
   {
     plugins: {
       'react-hooks': pluginReactHooks,
-      // 'redux-saga': pluginReduxSaga,
-      // 'typed-redux-saga': pluginTypedReduxSaga,
     },
   },
 ];

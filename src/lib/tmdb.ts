@@ -1,22 +1,13 @@
-const TMDB_API_KEY = '452777385104bb1696e163a7da57901f';
+import { config } from '../config';
+
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
-export interface TMDBImage {
-  aspect_ratio: number;
-  height: number;
-  iso_639_1: string | null;
-  file_path: string;
-  vote_average: number;
-  vote_count: number;
-  width: number;
-}
 
-export interface TMDBImagesResponse {
-  id: number;
-  backdrops: TMDBImage[];
-  logos: TMDBImage[];
-  posters: TMDBImage[];
-}
+// Constants for logo and backdrop selection
+const MIN_ASPECT_RATIO = 2;
+const MAX_ASPECT_RATIO = 4;
+const MAX_RANDOM_SELECTION = 3;
+
 export interface TMDBMovie {
   id: number;
   title: string;
@@ -32,6 +23,19 @@ export interface TMDBMovie {
   original_title: string;
   popularity: number;
   video: boolean;
+  runtime?: number;
+  budget?: number;
+  revenue?: number;
+  status?: string;
+  tagline?: string;
+  homepage?: string;
+  imdb_id?: string;
+  production_companies?: TMDBProductionCompany[];
+  production_countries?: TMDBProductionCountry[];
+  spoken_languages?: TMDBSpokenLanguage[];
+  genres?: TMDBGenre[];
+  first_air_date: string;
+  name: string;
 }
 
 export interface TMDBTVShow {
@@ -48,6 +52,24 @@ export interface TMDBTVShow {
   original_language: string;
   original_name: string;
   popularity: number;
+  episode_run_time?: number[];
+  number_of_episodes?: number;
+  number_of_seasons?: number;
+  status?: string;
+  type?: string;
+  homepage?: string;
+  in_production?: boolean;
+  last_air_date?: string;
+  networks?: TMDBNetwork[];
+  production_companies?: TMDBProductionCompany[];
+  production_countries?: TMDBProductionCountry[];
+  spoken_languages?: TMDBSpokenLanguage[];
+  genres?: TMDBGenre[];
+  created_by?: TMDBCreatedBy[];
+  seasons?: TMDBSeason[];
+  release_date?: string;
+  title: string;
+  // first_air_date?: string
 }
 
 export interface TMDBPerson {
@@ -59,11 +81,182 @@ export interface TMDBPerson {
   popularity: number;
   adult: boolean;
   gender: number;
+  biography?: string;
+  birthday?: string;
+  deathday?: string | null;
+  place_of_birth?: string;
+  also_known_as?: string[];
+  homepage?: string | null;
+  imdb_id?: string;
 }
 
 export interface TMDBGenre {
   id: number;
   name: string;
+}
+
+export interface TMDBProductionCompany {
+  id: number;
+  logo_path: string | null;
+  name: string;
+  origin_country: string;
+}
+
+export interface TMDBProductionCountry {
+  iso_3166_1: string;
+  name: string;
+}
+
+export interface TMDBSpokenLanguage {
+  english_name: string;
+  iso_639_1: string;
+  name: string;
+}
+
+export interface TMDBNetwork {
+  id: number;
+  logo_path: string | null;
+  name: string;
+  origin_country: string;
+}
+
+export interface TMDBCreatedBy {
+  id: number;
+  credit_id: string;
+  name: string;
+  gender: number;
+  profile_path: string | null;
+}
+
+export interface TMDBSeason {
+  air_date: string;
+  episode_count: number;
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+}
+
+export interface TMDBCastMember {
+  adult: boolean;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  popularity: number;
+  profile_path: string | null;
+  cast_id: number;
+  character: string;
+  credit_id: string;
+  order: number;
+}
+
+export interface TMDBCrewMember {
+  adult: boolean;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  popularity: number;
+  profile_path: string | null;
+  credit_id: string;
+  department: string;
+  job: string;
+}
+
+export interface TMDBCredits {
+  id: number;
+  cast: TMDBCastMember[];
+  crew: TMDBCrewMember[];
+}
+
+export interface TMDBVideo {
+  iso_639_1: string;
+  iso_3166_1: string;
+  name: string;
+  key: string;
+  site: string;
+  size: number;
+  type: string;
+  official: boolean;
+  published_at: string;
+  id: string;
+}
+
+export interface TMDBVideosResponse {
+  id: number;
+  results: TMDBVideo[];
+}
+
+export interface TMDBExternalIds {
+  imdb_id: string | null;
+  freebase_mid: string | null;
+  freebase_id: string | null;
+  tvdb_id: number | null;
+  tvrage_id: number | null;
+  wikidata_id: string | null;
+  facebook_id: string | null;
+  instagram_id: string | null;
+  twitter_id: string | null;
+}
+
+export interface TMDBPersonCredits {
+  cast: TMDBPersonCastCredit[];
+  crew: TMDBPersonCrewCredit[];
+}
+
+export interface TMDBPersonCastCredit {
+  adult: boolean;
+  backdrop_path: string | null;
+  genre_ids: number[];
+  id: number;
+  original_language: string;
+  original_title?: string;
+  original_name?: string;
+  overview: string;
+  popularity: number;
+  poster_path: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  title?: string;
+  name?: string;
+  video?: boolean;
+  vote_average: number;
+  vote_count: number;
+  character: string;
+  credit_id: string;
+  order?: number;
+  media_type: 'movie' | 'tv';
+  first_credit_air_date: string;
+}
+
+export interface TMDBPersonCrewCredit {
+  adult: boolean;
+  backdrop_path: string | null;
+  genre_ids: number[];
+  id: number;
+  original_language: string;
+  original_title?: string;
+  original_name?: string;
+  overview: string;
+  popularity: number;
+  poster_path: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  title?: string;
+  name?: string;
+  video?: boolean;
+  vote_average: number;
+  vote_count: number;
+  credit_id: string;
+  department: string;
+  job: string;
+  media_type: 'movie' | 'tv';
+  first_credit_air_date: string;
 }
 
 export interface TMDBResponse<T> {
@@ -73,12 +266,29 @@ export interface TMDBResponse<T> {
   total_results: number;
 }
 
+export interface TMDBImage {
+  aspect_ratio: number;
+  height: number;
+  iso_639_1: string | null;
+  file_path: string;
+  vote_average: number;
+  vote_count: number;
+  width: number;
+}
+
+export interface TMDBImagesResponse {
+  id: number;
+  backdrops: TMDBImage[];
+  logos: TMDBImage[];
+  posters: TMDBImage[];
+}
+
 class TMDBApi {
   private readonly apiKey: string;
   private readonly baseUrl: string;
 
   constructor() {
-    this.apiKey = TMDB_API_KEY;
+    this.apiKey = config.TMDB_API_KEY;
     this.baseUrl = TMDB_BASE_URL;
   }
 
@@ -95,6 +305,61 @@ class TMDBApi {
       console.error('TMDB API fetch error:', error);
       throw error;
     }
+  }
+
+  // Get movie details
+  async getMovieDetails(movieId: number): Promise<TMDBMovie> {
+    return await this.fetchFromTMDB(`/movie/${movieId}`);
+  }
+
+  // Get TV show details
+  async getTVShowDetails(tvId: number): Promise<TMDBTVShow> {
+    return await this.fetchFromTMDB(`/tv/${tvId}`);
+  }
+
+  // Get person details
+  async getPersonDetails(personId: number): Promise<TMDBPerson> {
+    return await this.fetchFromTMDB(`/person/${personId}`);
+  }
+
+  // Get movie credits
+  async getMovieCredits(movieId: number): Promise<TMDBCredits> {
+    return await this.fetchFromTMDB(`/movie/${movieId}/credits`);
+  }
+
+  // Get TV show credits
+  async getTVShowCredits(tvId: number): Promise<TMDBCredits> {
+    return await this.fetchFromTMDB(`/tv/${tvId}/credits`);
+  }
+
+  // Get person movie credits
+  async getPersonMovieCredits(personId: number): Promise<TMDBPersonCredits> {
+    return await this.fetchFromTMDB(`/person/${personId}/movie_credits`);
+  }
+
+  // Get person TV credits
+  async getPersonTVCredits(personId: number): Promise<TMDBPersonCredits> {
+    return await this.fetchFromTMDB(`/person/${personId}/tv_credits`);
+  }
+
+  // Get person combined credits
+  async getPersonCombinedCredits(personId: number): Promise<TMDBPersonCredits> {
+    return await this.fetchFromTMDB(`/person/${personId}/combined_credits`);
+  }
+
+  // Get movie videos (trailers, etc.)
+  async getMovieVideos(movieId: number): Promise<TMDBVideosResponse> {
+    return await this.fetchFromTMDB(`/movie/${movieId}/videos`);
+  }
+
+  // Get TV show videos
+  async getTVShowVideos(tvId: number): Promise<TMDBVideosResponse> {
+    return await this.fetchFromTMDB(`/tv/${tvId}/videos`);
+  }
+
+  // Get external IDs for a person
+  async getPersonExternalIds(personId: number): Promise<TMDBExternalIds> {
+    return await this.fetchFromTMDB(`/person/${personId}/external_ids`);
   }
 
   // Get trending movies and TV shows
@@ -150,16 +415,6 @@ class TMDBApi {
     return await this.fetchFromTMDB(`/trending/person/${timeWindow}`);
   }
 
-  // Get movie images
-  async getMovieImages(movieId: number): Promise<TMDBImagesResponse> {
-    return await this.fetchFromTMDB(`/movie/${movieId}/images?include_image_language=en,null`);
-  }
-
-  // Get TV show images
-  async getTVShowImages(tvId: number): Promise<TMDBImagesResponse> {
-    return await this.fetchFromTMDB(`/tv/${tvId}/images?include_image_language=en,null`);
-  }
-
   // Get movie genres
   async getMovieGenres(): Promise<{ genres: TMDBGenre[] }> {
     return await this.fetchFromTMDB('/genre/movie/list');
@@ -180,6 +435,21 @@ class TMDBApi {
     );
   }
 
+  // Get movie images
+  async getMovieImages(movieId: number): Promise<TMDBImagesResponse> {
+    return await this.fetchFromTMDB(`/movie/${movieId}/images?include_image_language=en,null`);
+  }
+
+  // Get TV show images
+  async getTVShowImages(tvId: number): Promise<TMDBImagesResponse> {
+    return await this.fetchFromTMDB(`/tv/${tvId}/images?include_image_language=en,null`);
+  }
+
+  // Get person images
+  async getPersonImages(personId: number): Promise<{ id: number; profiles: TMDBImage[] }> {
+    return await this.fetchFromTMDB(`/person/${personId}/images`);
+  }
+
   // Discover movies with filters
   async discoverMovies(
     params: {
@@ -193,9 +463,7 @@ class TMDBApi {
   ): Promise<TMDBResponse<TMDBMovie>> {
     const queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        queryParams.append(key, value.toString());
-      }
+      queryParams.append(key, value.toString());
     });
     return await this.fetchFromTMDB(`/discover/movie?${queryParams.toString()}`);
   }
@@ -257,9 +525,11 @@ class TMDBApi {
     if (englishLogos.length > 0) {
       // Sort by vote average and aspect ratio (prefer wider logos)
       return englishLogos.sort((a, b) => {
-        // Prefer logos with good aspect ratio (between 2:1 and 4:1)
-        const aRatioScore = a.aspect_ratio >= 2 && a.aspect_ratio <= 4 ? 1 : 0;
-        const bRatioScore = b.aspect_ratio >= 2 && b.aspect_ratio <= 4 ? 1 : 0;
+        // Prefer logos with good aspect ratio (between MIN_ASPECT_RATIO:1 and MAX_ASPECT_RATIO:1)
+        const aRatioScore =
+          a.aspect_ratio >= MIN_ASPECT_RATIO && a.aspect_ratio <= MAX_ASPECT_RATIO ? 1 : 0;
+        const bRatioScore =
+          b.aspect_ratio >= MIN_ASPECT_RATIO && b.aspect_ratio <= MAX_ASPECT_RATIO ? 1 : 0;
 
         if (aRatioScore !== bRatioScore) {
           return bRatioScore - aRatioScore;
@@ -275,8 +545,10 @@ class TMDBApi {
 
     if (nullLanguageLogos.length > 0) {
       return nullLanguageLogos.sort((a, b) => {
-        const aRatioScore = a.aspect_ratio >= 2 && a.aspect_ratio <= 4 ? 1 : 0;
-        const bRatioScore = b.aspect_ratio >= 2 && b.aspect_ratio <= 4 ? 1 : 0;
+        const aRatioScore =
+          a.aspect_ratio >= MIN_ASPECT_RATIO && a.aspect_ratio <= MAX_ASPECT_RATIO ? 1 : 0;
+        const bRatioScore =
+          b.aspect_ratio >= MIN_ASPECT_RATIO && b.aspect_ratio <= MAX_ASPECT_RATIO ? 1 : 0;
 
         if (aRatioScore !== bRatioScore) {
           return bRatioScore - aRatioScore;
@@ -294,51 +566,90 @@ class TMDBApi {
   findBestBackdrop(backdrops: TMDBImage[]): TMDBImage | null {
     if (!backdrops || backdrops.length === 0) return null;
 
-    // Filter backdrops with good quality and aspect ratio
-    const qualityBackdrops = backdrops.filter(backdrop => {
-      // Prefer landscape orientation (aspect ratio > 1.5)
-      const isLandscape = backdrop.aspect_ratio >= 1.5;
-      // Prefer high resolution (width >= 1280)
-      const isHighRes = backdrop.width >= 1280;
-      // Prefer good ratings (vote_average >= 5 or no votes yet)
-      const hasGoodRating = backdrop.vote_count === 0 || backdrop.vote_average >= 5.0;
+    // First, try to find English backdrops
+    const englishBackdrops = backdrops.filter(backdrop => backdrop.iso_639_1 === 'en');
 
-      return isLandscape && isHighRes && hasGoodRating;
-    });
-
-    // If we have quality backdrops, randomly select from top ones
-    if (qualityBackdrops.length > 0) {
-      // Sort by vote average and width, then randomly select from top 5
-      const sortedBackdrops = qualityBackdrops.sort((a, b) => {
-        // First by vote average (but treat 0 votes as neutral)
-        const aVotes = a.vote_count === 0 ? 6.0 : a.vote_average;
-        const bVotes = b.vote_count === 0 ? 6.0 : b.vote_average;
-
-        if (Math.abs(aVotes - bVotes) > 0.5) {
-          return bVotes - aVotes;
-        }
-
-        // Then by resolution
-        return b.width - a.width;
-      });
-
-      // Randomly select from top 3-5 backdrops to add variety
-      const topBackdrops = sortedBackdrops.slice(0, Math.min(5, sortedBackdrops.length));
-      const randomIndex = Math.floor(Math.random() * topBackdrops.length);
-      return topBackdrops[randomIndex];
+    if (englishBackdrops.length > 0) {
+      const randomIndex = Math.floor(
+        Math.random() * Math.min(MAX_RANDOM_SELECTION, englishBackdrops.length),
+      );
+      return englishBackdrops.sort((a, b) => b.width - a.width)[randomIndex];
     }
 
-    // Fallback: filter by basic criteria and randomly select
-    const basicBackdrops = backdrops.filter(backdrop => backdrop.aspect_ratio >= 1.5);
+    // If no English backdrops, try null language
+    const nullLanguageBackdrops = backdrops.filter(backdrop => backdrop.iso_639_1 === null);
+
+    if (nullLanguageBackdrops.length > 0) {
+      const randomIndex = Math.floor(
+        Math.random() * Math.min(MAX_RANDOM_SELECTION, nullLanguageBackdrops.length),
+      );
+      return nullLanguageBackdrops.sort((a, b) => b.width - a.width)[randomIndex];
+    }
+
+    // Try basic backdrops (no language specified)
+    const basicBackdrops = backdrops.filter(backdrop => !backdrop.iso_639_1);
 
     if (basicBackdrops.length > 0) {
-      const randomIndex = Math.floor(Math.random() * Math.min(3, basicBackdrops.length));
+      const randomIndex = Math.floor(
+        Math.random() * Math.min(MAX_RANDOM_SELECTION, basicBackdrops.length),
+      );
       return basicBackdrops.sort((a, b) => b.width - a.width)[randomIndex];
     }
 
     // Last resort: any backdrop
-    const randomIndex = Math.floor(Math.random() * Math.min(3, backdrops.length));
+    const randomIndex = Math.floor(
+      Math.random() * Math.min(MAX_RANDOM_SELECTION, backdrops.length),
+    );
     return backdrops.sort((a, b) => b.width - a.width)[randomIndex] || null;
+  }
+
+  // Helper function to get YouTube trailer URL
+  getYouTubeTrailerUrl(videos: TMDBVideo[]): string | null {
+    if (!videos || videos.length === 0) return null;
+    const trailers = videos.filter(video => video.type === 'Trailer');
+    if (trailers.length === 0) return null;
+    const sortedTrailers = [...trailers].sort(
+      (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime(),
+    );
+    return `https://www.youtube.com/watch?v=${sortedTrailers[0].key}`;
+  }
+
+  // Helper function to get YouTube embed URL
+  getYouTubeEmbedUrl(videos: TMDBVideo[]): string | null {
+    const trailerUrl = this.getYouTubeTrailerUrl(videos);
+    if (!trailerUrl) return null;
+    return trailerUrl.replace('watch?v=', 'embed/');
+  }
+
+  // Helper function to format runtime
+  formatRuntime(minutes: number): string {
+    if (!minutes) return 'TBA';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+
+  // Helper function to format currency
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
+
+  // Helper function to format date
+  formatDate(dateString: string): string {
+    if (!dateString) return 'TBA';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 }
 

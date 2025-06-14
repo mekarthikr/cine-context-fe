@@ -1,0 +1,70 @@
+import { useState, useEffect, type JSX } from 'react';
+import { tmdbApi, type TMDBImage } from '../lib/tmdb';
+import { cn } from '../lib/utils';
+
+interface ShowBackdropProps {
+  showId: number;
+  showTitle: string;
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export function ShowBackdrop({ showId, className = '', children }: ShowBackdropProps): JSX.Element {
+  const [backdrop, setBackdrop] = useState<TMDBImage | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchBackdrop = async () => {
+      try {
+        setLoading(true);
+        setError(false);
+
+        const imagesResponse = await tmdbApi.getTVShowImages(showId);
+        const bestBackdrop = tmdbApi.findBestBackdrop(imagesResponse.backdrops);
+
+        setBackdrop(bestBackdrop);
+      } catch (err) {
+        console.error('Error fetching show backdrop:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (showId) {
+      fetchBackdrop();
+    }
+  }, [showId]);
+
+  if (loading) {
+    return <div className={`bg-slate-800 animate-pulse ${className}`}>{children}</div>;
+  }
+
+  if (error || !backdrop) {
+    return (
+      <div
+        className={`bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 ${className}`}
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=800&width=1200)`,
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn('relative w-full h-full', className)}
+      style={{
+        backgroundImage: `url(${tmdbApi.getBackdropUrl(backdrop.file_path, 'w1280')})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
