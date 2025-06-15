@@ -191,7 +191,7 @@ const ContentSkeleton: React.FC = () => (
   </div>
 );
 
-export const HomePage: React.FC = () => {
+const HomePage: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
   // Content state
@@ -1911,4 +1911,4 @@ export const HomePage: React.FC = () => {
   );
 };
 
-// export default HomePage;
+export default HomePage;
