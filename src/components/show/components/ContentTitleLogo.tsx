@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi} from '@app/service/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
 import type { TMDBImage } from '@app/types/tmdb';
 
 interface ContentTitleLogoProps {

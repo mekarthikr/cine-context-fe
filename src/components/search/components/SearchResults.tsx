@@ -137,9 +137,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
               <div className="p-4 text-center text-red-400">
                 <p>{error}</p>
               </div>
-            ) : results.length === 0 &&
-              !loading &&
-              query.length >= MIN_QUERY_LENGTH ? (
+            ) : results.length === 0 && !loading && query.length >= MIN_QUERY_LENGTH ? (
               <div className="p-4 text-center text-slate-400">
                 <p>No results found for "{query}"</p>
                 <p className="text-sm mt-1">Try searching for movies, TV shows, or people</p>

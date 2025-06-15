@@ -55,7 +55,9 @@ body {
 
   .ambient-gradient::before {
     content: '';
+
     @apply absolute inset-0 opacity-50;
+
     background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);
     animation: ambient-pulse 8s ease-in-out infinite;
   }
@@ -78,6 +80,7 @@ body {
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
@@ -88,6 +91,7 @@ body {
     100% {
       opacity: 0.3;
     }
+
     50% {
       opacity: 0.5;
     }
@@ -150,6 +154,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -190,8 +195,10 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
+
     font-feature-settings:
       'rlig' 1,
       'calt' 1;

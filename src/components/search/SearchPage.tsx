@@ -8,7 +8,7 @@ import { Card, CardContent } from '@app/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@app/ui/select';
 import { Checkbox } from '@app/ui/checkbox';
-import { Skeleton } from '@app/components/skeleton/Skeleton';
+import { Skeleton } from '../../components/skeleton/Skeleton';
 import { useInView } from 'react-intersection-observer';
 import {
   tmdbApi,
@@ -60,7 +60,7 @@ interface SearchPageProps {
   className?: string;
 }
 
-const SearchPage: React.FC<SearchPageProps> = ({ }) => {
+const SearchPage: React.FC<SearchPageProps> = ({}) => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const { ref, inView } = useInView();
