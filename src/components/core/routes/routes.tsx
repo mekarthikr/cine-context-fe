@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { MovieDetailsPage } from '@app/components/movie/movie';
-import { ShowDetailsPage } from '@app/components/show/show';
-import { SearchPages } from '@app/components/search/SearchPage';
-import { ForgotPassword } from '@app/components/auth/forgot-password/ForgotPassword';
-import { ThemeProvider } from '@app/components/common/ThemeProvider';
-import { PersonDetailsPage } from '@app/components/profile/Profile';
-import { HomePage } from '@app/components/home';
+import { MovieDetailsPage } from '../../../components/movie/movie';
+import { ShowDetailsPage } from '../../../components/show/show';
+import { SearchPages } from '../../../components/search/SearchPage';
+import { ForgotPassword } from '../../../components/auth/forgot-password/ForgotPassword';
+import { ThemeProvider } from '../../../components/common/ThemeProvider';
+import { HomePage } from '../../../components/home/Home';
+import { PersonDetailsPage } from '../../../components/profile/Profile';
 
 export const AppRoutes: React.FC = () => (
   <BrowserRouter>
@@ -14,7 +14,6 @@ export const AppRoutes: React.FC = () => (
       <Routes>
         <Route index={true} element={<Navigate to={'/home'} />} />
         <Route path="home" element={<HomePage />} />
-        {/* <Route path="profile" element={<PersonDetailsPage />} /> */}
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="movie/:movieId" element={<MovieDetailsPage />} />
         <Route path="person/:personId" element={<PersonDetailsPage />} />
