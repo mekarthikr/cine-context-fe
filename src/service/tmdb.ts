@@ -1,4 +1,3 @@
-import { config } from '../config';
 import httpClient from './http';
 import type {
   TMDBMovie,
@@ -40,12 +39,10 @@ const RATING_MULTIPLIER = 10;
 const DEFAULT_ERROR_STATUS = 500;
 
 export class TMDBApi {
-  private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly httpClient: typeof httpClient;
 
   constructor() {
-    this.apiKey = config.TMDB_API_KEY;
     this.baseUrl = TMDB_BASE_URL;
     this.httpClient = httpClient;
   }

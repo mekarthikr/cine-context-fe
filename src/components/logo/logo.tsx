@@ -15,7 +15,7 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({
   contentId,
-  contentType,
+  // contentType,
   contentTitle,
   className = '',
   fallbackClassName = '',

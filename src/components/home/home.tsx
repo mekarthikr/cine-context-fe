@@ -43,7 +43,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import type { TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
+import type { TMDBTVShow } from '@app/types/tmdb';
 import { helperService } from '@app/service/helper';
 
 // Types for our content
@@ -158,7 +158,7 @@ const continueWatching = [
 ];
 
 // Constants for mood tags
-const MAX_MOOD_TAGS = 3;
+// const MAX_MOOD_TAGS = 3;
 
 // Add Skeleton component
 const ContentSkeleton: React.FC = () => (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { tmdbApi } from '../../service/tmdb';
-import type { TMDBMovie, TMDBTVShow, TMDBPerson } from '../../types/tmdb';
 import { Card, CardContent } from '../../ui/card';
 import { helperService } from '@app/service/helper';
 

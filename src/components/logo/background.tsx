@@ -12,7 +12,7 @@ interface BackgroundProps {
 
 export const Background: React.FC<BackgroundProps> = ({
   contentId,
-  contentType,
+  // contentType,
   className = '',
   children,
 }) => {

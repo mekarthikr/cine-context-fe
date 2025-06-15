@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@app/ui/input';
 import { Button } from '@app/ui/button';
-import { SearchResults } from '@app/components/SearchResults';
+// import { SearchResult } from '@app/components/search/SearchResult';
+import { SearchResults } from './components/SearchResults';
 // import { SearchResults } from './SearchResult';
 
 interface SearchBarProps {
@@ -12,7 +13,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  className = '',
+  // className = '',
   placeholder = 'Search by emotion, theme, or title',
 }) => {
   const [query, setQuery] = useState('');

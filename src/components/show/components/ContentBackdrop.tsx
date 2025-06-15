@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi, type TMDBImage } from '@app/service/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
 
 interface ContentBackdropProps {
   contentId: number;

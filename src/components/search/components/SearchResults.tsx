@@ -7,7 +7,12 @@ import { Button } from '@app/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
 import { tmdbApi, getTitle, getReleaseDate, formatRating, getYear } from '@app/service/tmdb';
 import type { TMDBPerson, TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
-import { helperService } from '@app/service/helper';
+// import { helperService } from '@app/service/helper';
+
+const MIN_QUERY_LENGTH = 2;
+const MAX_SEARCH_RESULTS = 10;
+const MAX_OVERVIEW_LENGTH = 120;
+const DEBOUNCE_DELAY = 300;
 
 interface SearchResult {
   id: number;
@@ -34,7 +39,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
 
   useEffect(() => {
     const searchContent = async (): Promise<void> => {
-      if (!query.trim() || query.length < helperService.MIN_QUERY_LENGTH) {
+      if (!query.trim() || query.length < MIN_QUERY_LENGTH) {
         setResults([]);
         return;
       }
@@ -55,7 +60,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
             }
             return true;
           })
-          .slice(0, helperService.MAX_SEARCH_RESULTS) // Limit to MAX_SEARCH_RESULTS
+          .slice(0, MAX_SEARCH_RESULTS) // Limit to MAX_SEARCH_RESULTS
           .map((item: any): SearchResult => {
             if (item.media_type === 'person') {
               const person = item as TMDBPerson;
@@ -81,8 +86,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
                 year: getYear(getReleaseDate(content)),
                 rating: formatRating(content.vote_average),
                 overview:
-                  content.overview.slice(0, helperService.MAX_OVERVIEW_LENGTH) +
-                  (content.overview.length > helperService.MAX_OVERVIEW_LENGTH ? '...' : ''),
+                  content.overview.slice(0, MAX_OVERVIEW_LENGTH) +
+                  (content.overview.length > MAX_OVERVIEW_LENGTH ? '...' : ''),
               };
             }
           });
@@ -96,7 +101,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
       }
     };
 
-    const debounceTimer = setTimeout(searchContent, helperService.DEBOUNCE_DELAY);
+    const debounceTimer = setTimeout(searchContent, DEBOUNCE_DELAY);
     return () => {
       clearTimeout(debounceTimer);
     };
@@ -134,12 +139,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onC
               </div>
             ) : results.length === 0 &&
               !loading &&
-              query.length >= helperService.MIN_QUERY_LENGTH ? (
+              query.length >= MIN_QUERY_LENGTH ? (
               <div className="p-4 text-center text-slate-400">
                 <p>No results found for "{query}"</p>
                 <p className="text-sm mt-1">Try searching for movies, TV shows, or people</p>
               </div>
-            ) : results.length === 0 && query.length < helperService.MIN_QUERY_LENGTH ? (
+            ) : results.length === 0 && query.length < MIN_QUERY_LENGTH ? (
               <div className="p-4 text-center text-slate-400">
                 <p>Type at least 2 characters to search</p>
               </div>

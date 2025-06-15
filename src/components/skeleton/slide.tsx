@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { cn } from '@app/service/utils';
-import { Skeleton } from './skeleton';
+import { Skeleton } from '@app/components/skeleton/Skeleton';
 
 const Slider = React.forwardRef<
   React.ComponentRef<typeof SliderPrimitive.Root>,
