@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { cn } from '@app/service/utils';
-import { Skeleton } from './Skeleton';
+// import { Skeleton } from './Skeleton';
 
 const Slider = React.forwardRef<
   React.ComponentRef<typeof SliderPrimitive.Root>,
@@ -25,7 +25,7 @@ export { Slider };
 export function SlideSkeleton() {
   return (
     <div className="w-full space-y-4">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+      {/* <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
         <Skeleton className="h-full w-full" />
       </div>
       <div className="space-y-2">
@@ -36,7 +36,7 @@ export function SlideSkeleton() {
         </div>
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-2/3" />
-      </div>
+      </div> */}
     </div>
   );
 }

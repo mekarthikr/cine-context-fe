@@ -8,7 +8,7 @@ import { Card, CardContent } from '@app/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@app/ui/select';
 import { Checkbox } from '@app/ui/checkbox';
-import { Skeleton } from '../skeleton/Skeleton';
+// import { Skeleton } from '../skeleton/Skeleton';
 import { useInView } from 'react-intersection-observer';
 import {
   tmdbApi,
@@ -39,14 +39,14 @@ const SearchSkeleton = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {[...Array(6)].map((_, i) => (
       <Card key={i} className="bg-slate-800 border-slate-700 overflow-hidden">
-        <div className="aspect-[2/3] relative">
+        {/* <div className="aspect-[2/3] relative">
           <Skeleton className="w-full h-full" />
         </div>
         <CardContent className="p-4">
           <Skeleton className="h-6 w-3/4 mb-2" />
           <Skeleton className="h-4 w-1/2 mb-2" />
           <Skeleton className="h-4 w-full" />
-        </CardContent>
+        </CardContent> */}
       </Card>
     ))}
   </div>
