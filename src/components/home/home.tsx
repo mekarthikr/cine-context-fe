@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router';
-// import { useTheme } from "next-themes"
 import {
   User,
   Play,
@@ -22,36 +21,30 @@ import {
   Info,
   ChevronLeft,
 } from 'lucide-react';
-import { Button } from '../../ui/button';
-import { Badge } from '../../ui/badge';
-import { Card, CardContent } from '../../ui/card';
-import { Checkbox } from '../../ui/checkbox';
+import { Button } from '@app/ui/button';
+import { Badge } from '@app/ui/badge';
+import { Card, CardContent } from '@app/ui/card';
+import { Checkbox } from '@app/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
-import { Progress } from '../../ui/progress';
-import { Slider } from '../../ui/slider';
-import { Label } from '../../ui/label';
-import { SearchBar } from '../SearchBar';
-import { ContentBackdrop } from '../ContentBackdrop';
-import { ContentTitleLogo } from '../ContentTitleLogo';
-import {
-  tmdbApi,
-  type TMDBMovie,
-  type TMDBTVShow,
-  isMovie,
-  getTitle,
-  formatRating,
-  getYear,
-} from '../../lib/tmdb';
-import { useTheme } from '../ThemeProvider';
+} from '@app/ui/dropdown-menu';
+import { Progress } from '@app/ui/progress';
+import { Slider } from '@app/ui/slider';
+import { Label } from '@app/ui/label';
+import { SearchBar } from '../search/components/SearchBar';
+import { ContentBackdrop } from '../show/components/ContentBackdrop';
+import { ContentTitleLogo } from '../show/components/ContentTitleLogo';
+import { tmdbApi, isMovie, getTitle, formatRating, getYear } from '@app/service/tmdb';
+import { useTheme } from '@app/components/common/ThemeProvider';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import type { TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
+import { helperService } from '@app/service/helper';
 
 // Types for our content
 interface ContentItem {
@@ -167,41 +160,8 @@ const continueWatching = [
 // Constants for mood tags
 const MAX_MOOD_TAGS = 3;
 
-// Helper function to get mood tags for content
-const getMoodTags = (item: TMDBMovie | TMDBTVShow): string[] => {
-  // const title = getTitle(item).toLowerCase();
-  const overview = item.overview.toLowerCase();
-
-  const tags: string[] = [];
-
-  // Simple keyword-based mood tagging
-  if (overview.includes('love') || overview.includes('romance')) tags.push('Romance');
-  if (overview.includes('family')) tags.push('Family');
-  if (overview.includes('dark') || overview.includes('crime')) tags.push('Dark');
-  if (overview.includes('comedy') || overview.includes('funny')) tags.push('Comedy');
-  if (overview.includes('action') || overview.includes('fight')) tags.push('Action');
-  if (overview.includes('mystery') || overview.includes('secret')) tags.push('Mystery');
-  if (overview.includes('drama')) tags.push('Drama');
-  if (overview.includes('adventure')) tags.push('Adventure');
-
-  // Default tags if none found
-  if (tags.length === 0) {
-    if (isMovie(item)) {
-      tags.push('Cinematic');
-    } else {
-      tags.push('Binge-worthy');
-    }
-  }
-
-  return tags.slice(0, MAX_MOOD_TAGS); // Limit to MAX_MOOD_TAGS
-};
-
-// Helper function to map genre IDs to names
-const mapGenreIdsToNames = (genreIds: number[], genreMap: Map<number, string>): string[] =>
-  genreIds.map(id => genreMap.get(id) || '').filter(Boolean);
-
 // Add Skeleton component
-const ContentSkeleton = () => (
+const ContentSkeleton: React.FC = () => (
   <div className="animate-pulse">
     <div className="h-[70vh] min-h-[500px] bg-slate-800 relative">
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
@@ -231,8 +191,7 @@ const ContentSkeleton = () => (
   </div>
 );
 
-export default function CineContextPage() {
-  // Theme
+export const HomePage: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
   // Content state
@@ -325,19 +284,19 @@ export default function CineContextPage() {
         ]);
 
         // Process trending movies
-        const trendingMoviesData = trendingMoviesResponse.results.map(
+        const trendingMoviesData = trendingMoviesResponse.results.filter(isMovie).map(
           (movie): ContentItem => ({
             id: movie.id,
             title: movie.title,
             type: 'movie',
             image: tmdbApi.getImageUrl(movie.poster_path),
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
-            year: getYear(movie.release_date as any),
+            year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
+            tags: helperService.getMoodTags(movie),
             description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? '...' : ''),
             isTrending: true,
-            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
             voteCount: movie.vote_count,
             popularity: movie.popularity,
           }),
@@ -350,23 +309,25 @@ export default function CineContextPage() {
         }
 
         // Process trending TV shows
-        const trendingTVData = trendingTVResponse.results.map(
-          (show): ContentItem => ({
-            id: show.id,
-            title: show.name,
-            type: 'tv',
-            image: tmdbApi.getImageUrl(show.poster_path),
-            backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
-            year: getYear(show.first_air_date),
-            rating: formatRating(show.vote_average),
-            tags: getMoodTags(show),
-            description: show.overview.slice(0, 150) + (show.overview.length > 150 ? '...' : ''),
-            isTrending: true,
-            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
-            voteCount: show.vote_count,
-            popularity: show.popularity,
-          }),
-        );
+        const trendingTVData = trendingTVResponse.results
+          .filter((show): show is TMDBTVShow => !isMovie(show))
+          .map(
+            (show): ContentItem => ({
+              id: show.id,
+              title: show.name,
+              type: 'tv',
+              image: tmdbApi.getImageUrl(show.poster_path),
+              backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
+              year: getYear(show.first_air_date),
+              rating: formatRating(show.vote_average),
+              tags: helperService.getMoodTags(show),
+              description: show.overview.slice(0, 150) + (show.overview.length > 150 ? '...' : ''),
+              isTrending: true,
+              genres: helperService.mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+              voteCount: show.vote_count,
+              popularity: show.popularity,
+            }),
+          );
         setTrendingTVShows(trendingTVData);
 
         // Process popular movies
@@ -379,9 +340,9 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
+            tags: helperService.getMoodTags(movie),
             description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? '...' : ''),
-            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
             voteCount: movie.vote_count,
             popularity: movie.popularity,
           }),
@@ -398,9 +359,9 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
             year: getYear(show.first_air_date),
             rating: formatRating(show.vote_average),
-            tags: getMoodTags(show),
+            tags: helperService.getMoodTags(show),
             description: show.overview.slice(0, 150) + (show.overview.length > 150 ? '...' : ''),
-            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(show.genre_ids, genreMapTemp),
             voteCount: show.vote_count,
             popularity: show.popularity,
           }),
@@ -417,9 +378,9 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
+            tags: helperService.getMoodTags(movie),
             description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? '...' : ''),
-            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
             voteCount: movie.vote_count,
             popularity: movie.popularity,
           }),
@@ -436,9 +397,9 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(show.backdrop_path),
             year: getYear(show.first_air_date),
             rating: formatRating(show.vote_average),
-            tags: getMoodTags(show),
+            tags: helperService.getMoodTags(show),
             description: show.overview.slice(0, 150) + (show.overview.length > 150 ? '...' : ''),
-            genres: mapGenreIdsToNames(show.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(show.genre_ids, genreMapTemp),
             voteCount: show.vote_count,
             popularity: show.popularity,
           }),
@@ -455,10 +416,10 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
+            tags: helperService.getMoodTags(movie),
             description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? '...' : ''),
             isNew: true,
-            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
             voteCount: movie.vote_count,
             popularity: movie.popularity,
           }),
@@ -475,10 +436,10 @@ export default function CineContextPage() {
             backdropImage: tmdbApi.getBackdropUrl(movie.backdrop_path),
             year: getYear(movie.release_date),
             rating: formatRating(movie.vote_average),
-            tags: getMoodTags(movie),
+            tags: helperService.getMoodTags(movie),
             description: movie.overview.slice(0, 150) + (movie.overview.length > 150 ? '...' : ''),
             isNew: true,
-            genres: mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
+            genres: helperService.mapGenreIdsToNames(movie.genre_ids, genreMapTemp),
             voteCount: movie.vote_count,
             popularity: movie.popularity,
           }),
@@ -705,9 +666,9 @@ export default function CineContextPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -728,7 +689,7 @@ export default function CineContextPage() {
                 onClick={() => {
                   setTheme(theme === 'dark' ? 'light' : 'dark');
                 }}
-                className="text-white hover:bg-slate-800"
+                className="hover:bg-accent hover:text-accent-foreground"
               >
                 {theme === 'dark' ? (
                   <SunMedium className="h-5 w-5" />
@@ -1442,37 +1403,40 @@ export default function CineContextPage() {
                   <div className="relative">
                     {/* Main card with glass morphism effect */}
                     <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/50">
-                      
                       {/* Profile Image Container */}
                       <div className="relative mb-3">
                         <div className="relative mx-auto w-20 h-20">
                           {/* Animated ring */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 animate-spin" style={{animationDuration: '3s'}}></div>
+                          <div
+                            className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 animate-spin"
+                            style={{ animationDuration: '3s' }}
+                          ></div>
                           <div className="absolute inset-[2px] rounded-full bg-slate-900"></div>
-                          
+
                           {/* Profile Image */}
                           <img
                             src={person.image}
                             alt={person.name}
                             className="absolute inset-[3px] w-[calc(100%-6px)] h-[calc(100%-6px)] rounded-full object-cover"
-                            onError={(e) => {
+                            onError={e => {
                               const imgElement = e.target as HTMLImageElement;
                               const fallbackElement = imgElement.nextElementSibling as HTMLElement;
                               if (imgElement && fallbackElement) {
                                 imgElement.style.display = 'none';
                                 fallbackElement.style.display = 'flex';
-                              } 
+                              }
                             }}
                           />
-                          
+
                           {/* Fallback Avatar */}
-                          <div 
-                            className="absolute inset-[3px] rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-lg hidden"
-                          >
-                            {person.name.split(' ').map(n => n[0]).join('')}
+                          <div className="absolute inset-[3px] rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-lg hidden">
+                            {person.name
+                              .split(' ')
+                              .map(n => n[0])
+                              .join('')}
                           </div>
                         </div>
-                        
+
                         {/* Trending Badge */}
                         {person.trending && (
                           <div className="absolute -top-2 -right-2">
@@ -1483,18 +1447,18 @@ export default function CineContextPage() {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Person Info */}
                       <div className="text-center space-y-1.5">
                         <h4 className="font-semibold text-white text-sm line-clamp-1">
                           {person.name}
                         </h4>
-                        
+
                         <div className="flex items-center justify-center gap-1 text-slate-300">
                           <Star className="h-3 w-3 text-yellow-400" />
                           <p className="text-xs font-medium">{person.role}</p>
                         </div>
-                        
+
                         <p className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors line-clamp-2 leading-relaxed">
                           {person.knownFor}
                         </p>
@@ -1945,4 +1909,6 @@ export default function CineContextPage() {
       </footer>
     </div>
   );
-}
+};
+
+// export default HomePage;

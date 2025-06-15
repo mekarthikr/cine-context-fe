@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Search } from 'lucide-react';
-import { Input } from '../../ui/input';
-import { Button } from '../../ui/button';
-import { SearchResults } from '../SearchResults';
+import { Search, X } from 'lucide-react';
+import { Input } from '@app/ui/input';
+import { Button } from '@app/ui/button';
+import { SearchResults } from '@app/components/SearchResults';
 // import { SearchResults } from './SearchResult';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  className?: string;
+  placeholder?: string;
+}
+
+export const SearchBar: React.FC<SearchBarProps> = ({
+  className = '',
+  placeholder = 'Search by emotion, theme, or title',
+}) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -57,7 +65,7 @@ export default function SearchBar() {
         <Input
           ref={inputRef}
           type="search"
-          placeholder="Search movies, TV shows, and people..."
+          placeholder={placeholder}
           value={query}
           onChange={e => {
             setQuery(e.target.value);
@@ -127,4 +135,4 @@ export default function SearchBar() {
       )}
     </div>
   );
-}
+};

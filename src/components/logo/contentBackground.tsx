@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi, type TMDBImage } from '../../lib/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
 
-interface ContentBackdropProps {
+interface ContentBackgroundProps {
   contentId: number;
   contentType: 'movie' | 'tv';
-  contentTitle: string;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function ContentBackdrop({
+export const ContentBackground: React.FC<ContentBackgroundProps> = ({
   contentId,
   contentType,
-  // contentTitle,
   className = '',
   children,
-}: ContentBackdropProps) {
+}) => {
   const [backdrop, setBackdrop] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -77,4 +76,4 @@ export function ContentBackdrop({
       {children}
     </div>
   );
-}
+};

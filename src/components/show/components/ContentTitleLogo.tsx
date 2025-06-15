@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi, type TMDBImage } from '../lib/tmdb';
+import { tmdbApi, type TMDBImage } from '@app/service/tmdb';
 
-interface ShowTitleLogoProps {
-  showId: number;
-  showTitle: string;
+interface ContentTitleLogoProps {
+  contentId: number;
+  contentType: 'movie' | 'tv';
+  contentTitle: string;
   className?: string;
   fallbackClassName?: string;
 }
 
-export function ShowTitleLogo({
-  showId,
-  showTitle,
+export const ContentTitleLogo: React.FC<ContentTitleLogoProps> = ({
+  contentId,
+  contentType,
+  contentTitle,
   className = '',
   fallbackClassName = '',
-}: ShowTitleLogoProps) {
+}) => {
   const [logo, setLogo] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -24,22 +26,26 @@ export function ShowTitleLogo({
         setLoading(true);
         setError(false);
 
-        const imagesResponse = await tmdbApi.getTVShowImages(showId);
+        const imagesResponse =
+          contentType === 'movie'
+            ? await tmdbApi.getMovieImages(contentId)
+            : await tmdbApi.getTVShowImages(contentId);
+
         const bestLogo = tmdbApi.findBestLogo(imagesResponse.logos);
 
         setLogo(bestLogo);
       } catch (err) {
-        console.error('Error fetching show logo:', err);
+        console.error(`Error fetching ${contentType} logo:`, err);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    if (showId) {
+    if (contentId && contentType) {
       fetchLogo();
     }
-  }, [showId]);
+  }, [contentId, contentType]);
 
   if (loading) {
     return (
@@ -50,24 +56,24 @@ export function ShowTitleLogo({
   }
 
   if (error || !logo) {
-    return <h1 className={`font-bold text-white ${fallbackClassName}`}>{showTitle}</h1>;
+    return <h1 className={`font-bold text-white ${fallbackClassName}`}>{contentTitle}</h1>;
   }
 
   return (
     <div className={className}>
       <img
         src={tmdbApi.getLogoUrl(logo.file_path, 'w500') || '/placeholder.svg'}
-        alt={`${showTitle} logo`}
+        alt={`${contentTitle} logo`}
         className="max-w-full h-auto object-contain"
         style={{
           aspectRatio: logo.aspect_ratio,
-          maxHeight: '120px'
+          maxHeight: '120px', // Limit height to keep it reasonable
         }}
         onError={() => {
           setError(true);
         }}
       />
-      <span className="sr-only">{showTitle}</span>
+      <span className="sr-only">{contentTitle}</span>
     </div>
   );
-}
+};

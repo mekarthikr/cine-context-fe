@@ -1,10 +1,10 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
-
-import { cn } from '../../lib/utils';
+import { cn } from '@app/service/utils';
+import { Skeleton } from './skeleton';
 
 const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
+  React.ComponentRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
@@ -21,3 +21,32 @@ const Slider = React.forwardRef<
 Slider.displayName = SliderPrimitive.Root.displayName;
 
 export { Slider };
+
+export function SlideSkeleton() {
+  return (
+    <div className="w-full space-y-4">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+        <Skeleton className="h-full w-full" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-6 w-3/4" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    </div>
+  );
+}
+
+export function SlideGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <SlideSkeleton key={i} />
+      ))}
+    </div>
+  );
+}

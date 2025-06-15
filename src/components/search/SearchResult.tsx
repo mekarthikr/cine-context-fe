@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { tmdbApi } from '../../lib/tmdb';
-import type { TMDBMovie, TMDBTVShow, TMDBPerson } from '../../lib/tmdb';
+import { tmdbApi } from '../../service/tmdb';
+import type { TMDBMovie, TMDBTVShow, TMDBPerson } from '../../types/tmdb';
 import { Card, CardContent } from '../../ui/card';
+import { helperService } from '@app/service/helper';
 
 interface SearchResultProps {
   query: string;
@@ -29,19 +30,7 @@ interface SearchResult {
   }>;
 }
 
-function isMovie(item: TMDBMovie | TMDBTVShow | TMDBPerson): item is TMDBMovie {
-  return 'title' in item && 'release_date' in item;
-}
-
-function isTVShow(item: TMDBMovie | TMDBTVShow | TMDBPerson): item is TMDBTVShow {
-  return 'name' in item && 'first_air_date' in item;
-}
-
-function isPerson(item: TMDBMovie | TMDBTVShow | TMDBPerson): item is TMDBPerson {
-  return 'known_for_department' in item && 'profile_path' in item;
-}
-
-export default function SearchResult({ query }: SearchResultProps) {
+export const SearchResult: React.FC<SearchResultProps> = ({ query }) => {
   const [results, setResults] = React.useState<SearchResult[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -53,19 +42,19 @@ export default function SearchResult({ query }: SearchResultProps) {
         const data = await tmdbApi.searchMulti(query);
         const filteredResults = data.results
           .filter(item => {
-            if (isMovie(item)) {
+            if (helperService.isMovie(item)) {
               return !item.adult && item.poster_path;
             }
-            if (isTVShow(item)) {
+            if (helperService.isTVShow(item)) {
               return item.poster_path;
             }
-            if (isPerson(item)) {
+            if (helperService.isPerson(item)) {
               return item.profile_path;
             }
             return false;
           })
           .map(item => {
-            if (isMovie(item)) {
+            if (helperService.isMovie(item)) {
               return {
                 id: item.id,
                 title: item.title,
@@ -73,10 +62,10 @@ export default function SearchResult({ query }: SearchResultProps) {
                 poster_path: item.poster_path || '',
                 media_type: 'movie' as const,
                 release_date: item.release_date,
-                vote_average: item.vote_average
+                vote_average: item.vote_average,
               };
             }
-            if (isTVShow(item)) {
+            if (helperService.isTVShow(item)) {
               return {
                 id: item.id,
                 name: item.name,
@@ -84,10 +73,10 @@ export default function SearchResult({ query }: SearchResultProps) {
                 poster_path: item.poster_path || '',
                 media_type: 'tv' as const,
                 first_air_date: item.first_air_date,
-                vote_average: item.vote_average
+                vote_average: item.vote_average,
               };
             }
-            if (isPerson(item)) {
+            if (helperService.isPerson(item)) {
               return {
                 id: item.id,
                 name: item.name,
@@ -97,21 +86,21 @@ export default function SearchResult({ query }: SearchResultProps) {
                 media_type: 'person' as const,
                 known_for_department: item.known_for_department,
                 known_for: item.known_for?.map(work => {
-                  if (isMovie(work)) {
+                  if (helperService.isMovie(work)) {
                     return {
                       id: work.id,
                       title: work.title,
                       poster_path: work.poster_path || '',
-                      media_type: 'movie' as const
+                      media_type: 'movie' as const,
                     };
                   }
                   return {
                     id: work.id,
                     name: work.name,
                     poster_path: work.poster_path || '',
-                    media_type: 'tv' as const
+                    media_type: 'tv' as const,
                   };
-                })
+                }),
               };
             }
             throw new Error('Unexpected item type');
@@ -170,4 +159,4 @@ export default function SearchResult({ query }: SearchResultProps) {
       ))}
     </div>
   );
-}
+};

@@ -1,20 +1,16 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi, type TMDBImage } from '../lib/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
+import { cn } from '@app/service/utils';
 
-interface ContentBackdropProps {
-  contentId: number;
-  contentType: 'movie' | 'tv';
-  contentTitle: string;
+interface ShowBackdropProps {
+  showId: number;
+  showTitle: string;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function ContentBackdrop({
-  contentId,
-  contentType,
-  className = '',
-  children,
-}: ContentBackdropProps) {
+export const ShowBackdrop: React.FC<ShowBackdropProps> = ({ showId, className = '', children }) => {
   const [backdrop, setBackdrop] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -25,26 +21,22 @@ export function ContentBackdrop({
         setLoading(true);
         setError(false);
 
-        const imagesResponse =
-          contentType === 'movie'
-            ? await tmdbApi.getMovieImages(contentId)
-            : await tmdbApi.getTVShowImages(contentId);
-
+        const imagesResponse = await tmdbApi.getTVShowImages(showId);
         const bestBackdrop = tmdbApi.findBestBackdrop(imagesResponse.backdrops);
 
         setBackdrop(bestBackdrop);
       } catch (err) {
-        console.error(`Error fetching ${contentType} backdrop:`, err);
+        console.error('Error fetching show backdrop:', err);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    if (contentId && contentType) {
+    if (showId) {
       fetchBackdrop();
     }
-  }, [contentId, contentType]);
+  }, [showId]);
 
   if (loading) {
     return <div className={`bg-slate-800 animate-pulse ${className}`}>{children}</div>;
@@ -65,7 +57,7 @@ export function ContentBackdrop({
 
   return (
     <div
-      className={className}
+      className={cn('relative w-full h-full', className)}
       style={{
         backgroundImage: `url(${tmdbApi.getBackdropUrl(backdrop.file_path, 'w1280')})`,
         backgroundSize: 'cover',
@@ -76,4 +68,4 @@ export function ContentBackdrop({
       {children}
     </div>
   );
-}
+};

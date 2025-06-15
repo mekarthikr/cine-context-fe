@@ -5,16 +5,9 @@ import { Badge } from '@app/ui/badge';
 import { Card, CardContent } from '@app/ui/card';
 import { Button } from '@app/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
-import {
-  tmdbApi,
-  type TMDBMovie,
-  type TMDBTVShow,
-  type TMDBPerson,
-  getTitle,
-  getReleaseDate,
-  formatRating,
-  getYear,
-} from '@app/lib/tmdb';
+import { tmdbApi, getTitle, getReleaseDate, formatRating, getYear } from '@app/service/tmdb';
+import type { TMDBPerson, TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
+import { helperService } from '@app/service/helper';
 
 interface SearchResult {
   id: number;
@@ -34,24 +27,14 @@ interface SearchResultsProps {
   onClose: () => void;
 }
 
-// Constants
-const MIN_QUERY_LENGTH = 2;
-const MAX_SEARCH_RESULTS = 10;
-const MAX_OVERVIEW_LENGTH = 120;
-const DEBOUNCE_DELAY = 300;
-
-export function SearchResults({
-  query,
-  isOpen,
-  onClose,
-}: SearchResultsProps): React.JSX.Element | null {
+export const SearchResults: React.FC<SearchResultsProps> = ({ query, isOpen, onClose }) => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const searchContent = async (): Promise<void> => {
-      if (!query.trim() || query.length < MIN_QUERY_LENGTH) {
+      if (!query.trim() || query.length < helperService.MIN_QUERY_LENGTH) {
         setResults([]);
         return;
       }
@@ -72,7 +55,7 @@ export function SearchResults({
             }
             return true;
           })
-          .slice(0, MAX_SEARCH_RESULTS) // Limit to MAX_SEARCH_RESULTS
+          .slice(0, helperService.MAX_SEARCH_RESULTS) // Limit to MAX_SEARCH_RESULTS
           .map((item: any): SearchResult => {
             if (item.media_type === 'person') {
               const person = item as TMDBPerson;
@@ -98,8 +81,8 @@ export function SearchResults({
                 year: getYear(getReleaseDate(content)),
                 rating: formatRating(content.vote_average),
                 overview:
-                  content.overview.slice(0, MAX_OVERVIEW_LENGTH) +
-                  (content.overview.length > MAX_OVERVIEW_LENGTH ? '...' : ''),
+                  content.overview.slice(0, helperService.MAX_OVERVIEW_LENGTH) +
+                  (content.overview.length > helperService.MAX_OVERVIEW_LENGTH ? '...' : ''),
               };
             }
           });
@@ -113,7 +96,7 @@ export function SearchResults({
       }
     };
 
-    const debounceTimer = setTimeout(searchContent, DEBOUNCE_DELAY);
+    const debounceTimer = setTimeout(searchContent, helperService.DEBOUNCE_DELAY);
     return () => {
       clearTimeout(debounceTimer);
     };
@@ -149,12 +132,14 @@ export function SearchResults({
               <div className="p-4 text-center text-red-400">
                 <p>{error}</p>
               </div>
-            ) : results.length === 0 && !loading && query.length >= MIN_QUERY_LENGTH ? (
+            ) : results.length === 0 &&
+              !loading &&
+              query.length >= helperService.MIN_QUERY_LENGTH ? (
               <div className="p-4 text-center text-slate-400">
                 <p>No results found for "{query}"</p>
                 <p className="text-sm mt-1">Try searching for movies, TV shows, or people</p>
               </div>
-            ) : results.length === 0 && query.length < MIN_QUERY_LENGTH ? (
+            ) : results.length === 0 && query.length < helperService.MIN_QUERY_LENGTH ? (
               <div className="p-4 text-center text-slate-400">
                 <p>Type at least 2 characters to search</p>
               </div>
@@ -247,7 +232,7 @@ export function SearchResults({
                                   <>
                                     <span>•</span>
                                     <div className="flex items-center gap-1">
-                                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      <Star className="h-3 w-3 text-yellow-400" />
                                       <span>{result.rating}</span>
                                     </div>
                                   </>
@@ -256,9 +241,9 @@ export function SearchResults({
                             )}
                           </div>
 
-                          {/* Overview/Description */}
+                          {/* Overview */}
                           {result.overview && (
-                            <p className="text-sm text-slate-300 line-clamp-2">{result.overview}</p>
+                            <p className="text-sm text-slate-400 line-clamp-2">{result.overview}</p>
                           )}
                         </div>
                       </div>
@@ -268,17 +253,8 @@ export function SearchResults({
               </div>
             )}
           </div>
-
-          {/* Footer */}
-          {results.length > 0 && (
-            <div className="p-3 border-t border-slate-700 bg-slate-800/50">
-              <p className="text-xs text-slate-400 text-center">
-                Showing {results.length} results • Press Enter to see all results
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
   );
-}
+};

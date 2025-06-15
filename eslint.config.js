@@ -7,31 +7,26 @@ import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintPluginJest from 'eslint-plugin-jest';
 
-// import importOrder from './import-order.mjs';
-
 export default [
-  // Global settings
   {
     languageOptions: {
       globals: {
-        ...globals.node, // Node.js globals (includes process, __dirname, etc.)
-        ...globals.browser, // Browser globals (includes window, document, etc.)
+        ...globals.node,
+        ...globals.browser,
         NodeJS: true,
         jest: true,
       },
     },
   },
 
-  // JavaScript, TypeScript & Import Order Configurations
   pluginJs.configs.recommended,
-  eslintPluginPrettierRecommended, // Enable Prettier plugin
-  eslintConfigPrettier, // Resolve Prettier conflicts
+  eslintPluginPrettierRecommended,
+  eslintConfigPrettier,
   {
     ...eslintConfigLove,
     files: ['src/**/*.{js,ts,tsx}'],
     rules: {
       ...eslintConfigLove.rules,
-      // 'import/order': importOrder(), // Custom import order configuration
       'promise/always-return': 'off',
       'no-constant-binary-expression': 'off',
       '@typescript-eslint/max-params': ['error', { max: 5 }],
@@ -47,7 +42,6 @@ export default [
     },
   },
 
-  // Unit Testing Config
   {
     files: ['src/**/*.test.{js,ts,tsx}', 'src/tests/**/*.{js,ts,tsx}'],
     ...eslintPluginJest.configs['flat/recommended'],
@@ -63,14 +57,13 @@ export default [
     },
   },
 
-  // React Config
   {
     ...pluginReact.configs.flat.recommended,
     settings: {
       react: {
         version: 'detect',
-        pragma: 'React', // Default pragma
-        fragment: 'Fragment', // Default Fragment
+        pragma: 'React',
+        fragment: 'Fragment',
       },
     },
   },
@@ -81,7 +74,6 @@ export default [
     },
   },
 
-  // Custom Plugins (React-Hooks)
   {
     plugins: {
       'react-hooks': pluginReactHooks,

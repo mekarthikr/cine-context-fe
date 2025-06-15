@@ -22,19 +22,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '../..//ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../..//ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../../ui/collapsible';
 import { Progress } from '../../ui/progress';
-import { ContentTitleLogo } from '../ContentTitleLogo';
-import { ContentBackdrop } from '../ContentBackdrop';
-import { TrailerModal } from '../TrailerModal';
+import { ContentTitleLogo } from './components/ContentTitleLogo';
+import { ContentBackdrop } from './components/ContentBackdrop';
+import { TrailerModal } from '../movie/components/TrailerModal';
 import {
   tmdbApi,
-  type TMDBTVShow,
-  type TMDBCredits,
-  type TMDBVideo,
+  // type TMDBTVShow,
+  // type TMDBCredits,
+  // type TMDBVideo,
   formatRating,
   getYear,
-  type TMDBSeason,
-} from '../../lib/tmdb';
+  // type TMDBSeason,
+} from '@app/service/tmdb';
 import { config } from '../../config';
+import httpClient from '@app/service/http';
+import type { TMDBTVShow, TMDBCredits, TMDBSeason, TMDBVideo } from '@app/types/tmdb';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 interface TMDBEpisode {
   id: number;
@@ -53,18 +55,20 @@ interface TMDBEpisode {
 interface TMDBSeasonDetails extends TMDBSeason {
   episodes: TMDBEpisode[];
 }
-export default function ShowDetailsPage() {
+export const ShowDetailsPage: React.FC = () => {
   const { showId } = useParams<{ showId: string }>();
 
   async function getSeasonDetails(
     showId: string,
     seasonNumber: number,
   ): Promise<TMDBSeasonDetails> {
-    const response = await fetch(
-      `${TMDB_BASE_URL}/tv/${showId}/season/${seasonNumber}?api_key=${config.TMDB_API_KEY}`,
-    );
-    if (!response.ok) throw new Error('Failed to fetch season details');
-    return await response.json();
+    const url = `${TMDB_BASE_URL}/tv/${showId}/season/${seasonNumber}?api_key=${config.TMDB_API_KEY}`;
+    try {
+      const response = await httpClient.get<TMDBSeasonDetails>(url);
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch season details');
+    }
   }
   const [show, setShow] = useState<TMDBTVShow | null>(null);
   const [credits, setCredits] = useState<TMDBCredits | null>(null);
@@ -1063,4 +1067,4 @@ export default function ShowDetailsPage() {
       />
     </div>
   );
-}
+};

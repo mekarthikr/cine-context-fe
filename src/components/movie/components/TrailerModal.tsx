@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef, useCallback, type JSX } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Play, Clock, Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@app/ui/dialog';
 import { Button } from '@app/ui/button';
-import { tmdbApi, type TMDBVideo } from '@app/lib/tmdb';
-import { cn } from '@app/lib/utils';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBVideo } from '@app/types/tmdb';
+import { cn } from '@app/service/utils';
+import { helperService } from '@app/service/helper';
 
 interface TrailerModalProps {
   isOpen: boolean;
@@ -20,15 +22,13 @@ interface LazyImageProps {
   onLoad?: () => void;
 }
 
-function SkeletonLoader({ className }: { className?: string }): JSX.Element {
-  return (
-    <div className={cn('animate-pulse bg-gray-200 rounded-lg', className)}>
-      <div className="aspect-video w-full" />
-    </div>
-  );
-}
+const SkeletonLoader: React.FC<{ className?: string }> = ({ className }) => (
+  <div className={cn('animate-pulse bg-gray-200 rounded-lg', className)}>
+    <div className="aspect-video w-full" />
+  </div>
+);
 
-function LazyImage({ src, alt, className, onLoad }: LazyImageProps): JSX.Element {
+const LazyImage: React.FC<LazyImageProps> = ({ src, alt, className, onLoad }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -97,15 +97,15 @@ function LazyImage({ src, alt, className, onLoad }: LazyImageProps): JSX.Element
       )}
     </div>
   );
-}
+};
 
-export function TrailerModal({
+export const TrailerModal: React.FC<TrailerModalProps> = ({
   isOpen,
   onClose,
   contentId,
   contentType,
   contentTitle,
-}: TrailerModalProps) {
+}) => {
   const [videos, setVideos] = useState<TMDBVideo[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<TMDBVideo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,8 +145,6 @@ export function TrailerModal({
   const selectVideo = (video: TMDBVideo) => {
     setSelectedVideo(video);
   };
-
-  const getEmbedUrl = (key: string) => `https://www.youtube.com/embed/${key}?autoplay=1&rel=0`;
 
   const getVideoTypeIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -248,13 +246,13 @@ export function TrailerModal({
             ) : error ? (
               <div className="h-96 flex items-center justify-center">
                 <div className="text-center bg-slate-800/50 rounded-xl p-8 border border-slate-700/50">
-                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <X className="w-8 h-8 text-red-400" />
-                  </div>
-                  <p className="text-red-400 mb-4 font-medium">{error}</p>
+                  <X className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-white mb-2">Error Loading Videos</h3>
+                  <p className="text-slate-400">{error}</p>
                   <Button
+                    variant="outline"
+                    className="mt-4 border-slate-700 text-slate-300 hover:bg-slate-700/50"
                     onClick={fetchVideos}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg"
                   >
                     Try Again
                   </Button>
@@ -262,109 +260,80 @@ export function TrailerModal({
               </div>
             ) : videos.length === 0 ? (
               <div className="h-96 flex items-center justify-center">
-                <div className="text-center bg-slate-800/30 rounded-xl p-8 border border-slate-700/30">
-                  <div className="w-16 h-16 bg-slate-600/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Play className="w-8 h-8 text-slate-400" />
                   </div>
-                  <p className="text-slate-400 font-medium">
-                    No videos available for this content.
+                  <h3 className="text-lg font-medium text-white mb-2">No Videos Available</h3>
+                  <p className="text-slate-400">
+                    There are no videos available for {contentTitle} at the moment.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="p-6 space-y-6">
-                {/* Video Player */}
+                {/* Selected Video */}
                 {selectedVideo && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <h3 className="text-lg font-semibold text-white">{selectedVideo.name}</h3>
-                        <span
-                          className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getVideoTypeColor(selectedVideo.type)}`}
-                        >
-                          {getVideoTypeIcon(selectedVideo.type)}
-                          <span>{selectedVideo.type}</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="relative overflow-hidden rounded-xl shadow-2xl">
-                      <div className="relative pb-[56.25%] h-0">
-                        <iframe
-                          src={getEmbedUrl(selectedVideo.key)}
-                          className="absolute top-0 left-0 w-full h-full rounded-xl"
-                          allowFullScreen
-                          title={selectedVideo.name}
-                        ></iframe>
-                      </div>
-                    </div>
+                  <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
+                    <iframe
+                      src={helperService.getEmbedUrl(selectedVideo.key)}
+                      title={selectedVideo.name}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
                   </div>
                 )}
 
                 {/* Video List */}
-                {videos.length > 1 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <h3 className="text-lg font-semibold text-white">More Videos</h3>
-                      <span className="text-sm text-slate-400 bg-slate-800/50 px-2 py-1 rounded-full">
-                        {videos.length} total
-                      </span>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videos.map(video => (
+                    <button
+                      key={video.id}
+                      onClick={() => {
+                        selectVideo(video);
+                      }}
+                      className={`group relative aspect-video rounded-lg overflow-hidden border ${
+                        selectedVideo?.id === video.id
+                          ? 'ring-2 ring-purple-500 border-purple-500/50'
+                          : 'border-slate-700/50 hover:border-slate-600/50'
+                      } transition-all duration-200`}
+                    >
+                      {/* Thumbnail */}
+                      <LazyImage
+                        src={`https://img.youtube.com/vi/${video.key}/maxresdefault.jpg`}
+                        alt={video.name}
+                        className="w-full h-full object-cover"
+                      />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {videos.map(video => (
-                        <div
-                          key={video.id}
-                          className={`group cursor-pointer rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 ${
-                            selectedVideo?.id === video.id
-                              ? 'ring-2 ring-purple-500 shadow-lg shadow-purple-500/25 h-fit'
-                              : 'hover:shadow-xl hover:shadow-black/50'
-                          }`}
-                          onClick={() => {
-                            selectVideo(video);
-                          }}
-                          style={{ height: 'fit-content' }}
-                        >
-                          <div className="relative bg-slate-800/50 backdrop-blur-sm">
-                            <div className="relative overflow-hidden">
-                              <LazyImage
-                                src={`https://img.youtube.com/vi/${video.key}/mqdefault.jpg`}
-                                alt={video.name}
-                                className="w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-                                    <Play className="w-5 h-5 text-white ml-0.5" />
-                                  </div>
-                                </div>
-                              </div>
-                              {selectedVideo?.id === video.id && (
-                                <div className="absolute top-2 right-2">
-                                  <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="p-3 space-y-2">
-                              <div className="flex items-start justify-between space-x-2">
-                                <p className="text-sm font-medium text-white line-clamp-2 leading-tight">
-                                  {video.name}
-                                </p>
-                                <span
-                                  className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getVideoTypeColor(video.type)}`}
-                                >
-                                  {getVideoTypeIcon(video.type)}
-                                  <span>{video.type}</span>
-                                </span>
-                              </div>
-                            </div>
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getVideoTypeColor(
+                                video.type,
+                              )}`}
+                            >
+                              {getVideoTypeIcon(video.type)}
+                              {video.type}
+                            </span>
                           </div>
+                          <h3 className="text-sm font-medium text-white line-clamp-2">
+                            {video.name}
+                          </h3>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      </div>
+
+                      {/* Play Button */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <Play className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -372,4 +341,4 @@ export function TrailerModal({
       </DialogContent>
     </Dialog>
   );
-}
+};

@@ -1,24 +1,26 @@
-import { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+
 import { useSearchParams, Link } from 'react-router';
 import { ArrowLeft, Star, Calendar, User, Film, Tv, Filter, Grid, List } from 'lucide-react';
-import { Button } from '../../ui/button';
-import { Badge } from '../../ui/badge';
-import { Card, CardContent } from '../../ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
-import { Checkbox } from '../../ui/checkbox';
+import { Button } from '@app/ui/button';
+import { Badge } from '@app/ui/badge';
+import { Card, CardContent } from '@app/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@app/ui/select';
+import { Checkbox } from '@app/ui/checkbox';
 import { Skeleton } from '../skeleton/skeleton';
 import { useInView } from 'react-intersection-observer';
 import {
   tmdbApi,
-  type TMDBMovie,
-  type TMDBTVShow,
-  type TMDBPerson,
+  // type TMDBMovie,
+  // type TMDBTVShow,
+  // type TMDBPerson,
   getTitle,
   getReleaseDate,
   formatRating,
   getYear,
-} from '../../lib/tmdb';
+} from '@app/service/tmdb';
+import type { TMDBPerson, TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
 
 interface SearchResult {
   id: number;
@@ -54,7 +56,11 @@ const SearchSkeleton = () => (
 const MAX_KNOWN_FOR_ITEMS = 3;
 const DEFAULT_MIN_RATING = 0;
 
-function SearchPageContent(): React.JSX.Element {
+interface SearchPageProps {
+  className?: string;
+}
+
+const SearchPage: React.FC<SearchPageProps> = ({ className = '' }) => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const { ref, inView } = useInView();
@@ -463,12 +469,10 @@ function SearchPageContent(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};
 
-export default function SearchPage() {
-  return (
-    <Suspense fallback={<SearchSkeleton />}>
-      <SearchPageContent />
-    </Suspense>
-  );
-}
+export const SearchPages: React.FC = () => (
+  <Suspense fallback={<SearchSkeleton />}>
+    <SearchPage />
+  </Suspense>
+);

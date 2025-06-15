@@ -1,15 +1,21 @@
-import React, { useState, useEffect, type JSX } from 'react';
-import { tmdbApi, type TMDBImage } from '../../lib/tmdb';
-import { cn } from '../../lib/utils';
+import { useState, useEffect } from 'react';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
+import { cn } from '@app/service/utils';
 
-interface ShowBackdropProps {
-  showId: number;
-  showTitle: string;
+interface BackgroundProps {
+  contentId: number;
+  contentType: 'movie' | 'tv';
   className?: string;
   children?: React.ReactNode;
 }
 
-export function ShowBackdrop({ showId, className = '', children }: ShowBackdropProps): JSX.Element {
+export const Background: React.FC<BackgroundProps> = ({
+  contentId,
+  contentType,
+  className = '',
+  children,
+}) => {
   const [backdrop, setBackdrop] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -20,7 +26,7 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
         setLoading(true);
         setError(false);
 
-        const imagesResponse = await tmdbApi.getTVShowImages(showId);
+        const imagesResponse = await tmdbApi.getTVShowImages(contentId);
         const bestBackdrop = tmdbApi.findBestBackdrop(imagesResponse.backdrops);
 
         setBackdrop(bestBackdrop);
@@ -32,10 +38,10 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
       }
     };
 
-    if (showId) {
+    if (contentId) {
       fetchBackdrop();
     }
-  }, [showId]);
+  }, [contentId]);
 
   if (loading) {
     return <div className={`bg-slate-800 animate-pulse ${className}`}>{children}</div>;
@@ -67,4 +73,4 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
       {children}
     </div>
   );
-}
+};

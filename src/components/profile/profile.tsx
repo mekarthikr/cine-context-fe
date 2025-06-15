@@ -19,14 +19,15 @@ import { Badge } from '../../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import {
   tmdbApi,
-  type TMDBPerson,
-  type TMDBPersonCredits,
-  type TMDBExternalIds,
+  // type TMDBPerson,
+  // type TMDBPersonCredits,
+  // type TMDBExternalIds,
   formatRating,
   getYear,
-} from '../../lib/tmdb';
+} from '@app/service/tmdb';
+import type { TMDBPerson, TMDBPersonCredits, TMDBExternalIds } from '@app/types/tmdb';
 
-export default function PersonDetailsPage() {
+export const PersonDetailsPage: React.FC = () => {
   const { personId } = useParams();
   // const personId = Number(params.id)
 
@@ -189,7 +190,7 @@ export default function PersonDetailsPage() {
           <div className="flex-shrink-0 relative">
             <div className="relative h-72 w-72 mx-auto lg:mx-0">
               <img
-                src={tmdbApi.getImageUrl(person.profile_path, 'w500') || '/placeholder.svg'}
+                src={tmdbApi.getImageUrl(person.profile_path, 'w500')}
                 alt={person.name}
                 className="w-full h-full object-cover rounded-2xl border-4 border-slate-700 shadow-2xl"
                 loading="lazy"
@@ -365,9 +366,7 @@ export default function PersonDetailsPage() {
                             <div className="group cursor-pointer">
                               <div className="relative aspect-[2/3]">
                                 <img
-                                  src={
-                                    tmdbApi.getImageUrl(credit.poster_path) || '/placeholder.svg'
-                                  }
+                                  src={tmdbApi.getImageUrl(credit.poster_path, 'w342')}
                                   alt={credit.title || credit.name || 'Unknown'}
                                   className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform"
                                   loading="lazy"
@@ -589,7 +588,7 @@ export default function PersonDetailsPage() {
                       <div className="group cursor-pointer">
                         <div className="relative aspect-[2/3]">
                           <img
-                            src={tmdbApi.getImageUrl(credit.poster_path) || '/placeholder.svg'}
+                            src={tmdbApi.getImageUrl(credit.poster_path, 'w342')}
                             alt={credit.title || credit.name || 'Unknown'}
                             className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform"
                             loading="lazy"
@@ -632,7 +631,7 @@ export default function PersonDetailsPage() {
                           <div className="flex gap-4">
                             <div className="relative w-16 h-24 flex-shrink-0">
                               <img
-                                src={tmdbApi.getImageUrl(credit.poster_path) || '/placeholder.svg'}
+                                src={tmdbApi.getImageUrl(credit.poster_path, 'w342')}
                                 alt={credit.title || credit.name || 'Unknown'}
                                 className="w-full h-full object-cover rounded"
                                 loading="lazy"
@@ -960,4 +959,4 @@ export default function PersonDetailsPage() {
       </div>
     </div>
   );
-}
+};

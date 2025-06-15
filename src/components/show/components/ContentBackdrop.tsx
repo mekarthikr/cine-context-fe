@@ -1,15 +1,20 @@
-import { useState, useEffect, type JSX } from 'react';
-import { tmdbApi, type TMDBImage } from '../lib/tmdb';
-import { cn } from '../lib/utils';
+import { useState, useEffect } from 'react';
+import { tmdbApi, type TMDBImage } from '@app/service/tmdb';
 
-interface ShowBackdropProps {
-  showId: number;
-  showTitle: string;
+interface ContentBackdropProps {
+  contentId: number;
+  contentType: 'movie' | 'tv';
+  contentTitle: string;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function ShowBackdrop({ showId, className = '', children }: ShowBackdropProps): JSX.Element {
+export const ContentBackdrop: React.FC<ContentBackdropProps> = ({
+  contentId,
+  contentType,
+  className = '',
+  children,
+}) => {
   const [backdrop, setBackdrop] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -20,22 +25,26 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
         setLoading(true);
         setError(false);
 
-        const imagesResponse = await tmdbApi.getTVShowImages(showId);
+        const imagesResponse =
+          contentType === 'movie'
+            ? await tmdbApi.getMovieImages(contentId)
+            : await tmdbApi.getTVShowImages(contentId);
+
         const bestBackdrop = tmdbApi.findBestBackdrop(imagesResponse.backdrops);
 
         setBackdrop(bestBackdrop);
       } catch (err) {
-        console.error('Error fetching show backdrop:', err);
+        console.error(`Error fetching ${contentType} backdrop:`, err);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    if (showId) {
+    if (contentId && contentType) {
       fetchBackdrop();
     }
-  }, [showId]);
+  }, [contentId, contentType]);
 
   if (loading) {
     return <div className={`bg-slate-800 animate-pulse ${className}`}>{children}</div>;
@@ -56,7 +65,7 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
 
   return (
     <div
-      className={cn('relative w-full h-full', className)}
+      className={className}
       style={{
         backgroundImage: `url(${tmdbApi.getBackdropUrl(backdrop.file_path, 'w1280')})`,
         backgroundSize: 'cover',
@@ -67,4 +76,4 @@ export function ShowBackdrop({ showId, className = '', children }: ShowBackdropP
       {children}
     </div>
   );
-}
+};

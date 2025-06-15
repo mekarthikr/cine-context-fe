@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { tmdbApi, type TMDBImage } from '../lib/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
 
-interface ContentTitleLogoProps {
+interface TitleLogoProps {
   contentId: number;
   contentType: 'movie' | 'tv';
   contentTitle: string;
@@ -9,13 +10,13 @@ interface ContentTitleLogoProps {
   fallbackClassName?: string;
 }
 
-export function ContentTitleLogo({
+export const TitleLogo: React.FC<TitleLogoProps> = ({
   contentId,
   contentType,
   contentTitle,
   className = '',
   fallbackClassName = '',
-}: ContentTitleLogoProps) {
+}) => {
   const [logo, setLogo] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -49,7 +50,10 @@ export function ContentTitleLogo({
 
   if (loading) {
     return (
-      <div className={`animate-pulse bg-slate-700 rounded ${fallbackClassName}`}>
+      <div
+        className={`animate-pulse bg-slate-700 rounded ${fallbackClassName}`}
+        style={{ height: '120px' }}
+      >
         <span className="sr-only">Loading logo...</span>
       </div>
     );
@@ -76,4 +80,4 @@ export function ContentTitleLogo({
       <span className="sr-only">{contentTitle}</span>
     </div>
   );
-}
+};

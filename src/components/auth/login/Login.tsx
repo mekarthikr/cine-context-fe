@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { Separator } from '../../ui/separator';
+import { Button } from '@app/ui/button';
+import { Input } from '@app/ui/input';
+import { Label } from '@app/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@app/ui/card';
+import { Separator } from '@app/ui/separator';
 
-export default function LoginPage() {
+export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = React.useState({
     email: '',
@@ -98,4 +98,6 @@ export default function LoginPage() {
       </Card>
     </div>
   );
-}
+};
+
+// export default LoginPage;

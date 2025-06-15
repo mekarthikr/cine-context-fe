@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { tmdbApi, type TMDBImage } from '../../lib/tmdb';
+import { tmdbApi } from '@app/service/tmdb';
+import type { TMDBImage } from '@app/types/tmdb';
 
-interface ShowTitleLogoProps {
-  showId: number;
-  showTitle: string;
+interface LogoProps {
+  contentId: number;
+  contentType: 'movie' | 'tv';
+  contentTitle: string;
   className?: string;
   fallbackClassName?: string;
   rootMargin?: string; // For intersection observer
@@ -11,15 +13,16 @@ interface ShowTitleLogoProps {
   minWidth?: string; // Minimal width for the logo
 }
 
-export function ShowTitleLogo({
-  showId,
-  showTitle,
+export const Logo: React.FC<LogoProps> = ({
+  contentId,
+  contentType,
+  contentTitle,
   className = '',
   fallbackClassName = '',
   rootMargin = '50px',
   threshold = 0.1,
   minWidth = '120px',
-}: ShowTitleLogoProps) {
+}) => {
   const [logo, setLogo] = useState<TMDBImage | null>(null);
   const [loading, setLoading] = useState(false); // Start as false since we're lazy loading
   const [error, setError] = useState(false);
@@ -57,7 +60,7 @@ export function ShowTitleLogo({
         setLoading(true);
         setError(false);
 
-        const imagesResponse = await tmdbApi.getTVShowImages(showId);
+        const imagesResponse = await tmdbApi.getTVShowImages(contentId);
         const bestLogo = tmdbApi.findBestLogo(imagesResponse.logos);
 
         setLogo(bestLogo);
@@ -70,10 +73,10 @@ export function ShowTitleLogo({
     };
 
     // Only fetch when visible and we have a showId
-    if (isVisible && showId && !logo && !loading && !error) {
+    if (isVisible && contentId && !logo && !loading && !error) {
       fetchLogo();
     }
-  }, [isVisible, showId, logo, loading, error]);
+  }, [isVisible, contentId, logo, loading, error]);
 
   // Render placeholder when not visible yet
   if (!isVisible) {
@@ -83,7 +86,7 @@ export function ShowTitleLogo({
         className={`animate-pulse bg-slate-700 rounded ${fallbackClassName}`}
         style={{ height: '120px', minWidth }}
       >
-        <span className="sr-only">Loading {showTitle} logo...</span>
+        <span className="sr-only">Loading {contentTitle} logo...</span>
       </div>
     );
   }
@@ -96,7 +99,7 @@ export function ShowTitleLogo({
         className={`animate-pulse bg-slate-700 rounded ${fallbackClassName}`}
         style={{ height: '120px', minWidth }}
       >
-        <span className="sr-only">Loading {showTitle} logo...</span>
+        <span className="sr-only">Loading {contentTitle} logo...</span>
       </div>
     );
   }
@@ -105,7 +108,7 @@ export function ShowTitleLogo({
   if (error || !logo) {
     return (
       <div ref={containerRef}>
-        <h1 className={`font-bold text-white ${fallbackClassName}`}>{showTitle}</h1>
+        <h1 className={`font-bold text-white ${fallbackClassName}`}>{contentTitle}</h1>
       </div>
     );
   }
@@ -115,7 +118,7 @@ export function ShowTitleLogo({
     <div ref={containerRef} className={className}>
       <img
         src={tmdbApi.getLogoUrl(logo.file_path, 'w500') || '/placeholder.svg'}
-        alt={`${showTitle} logo`}
+        alt={`${contentTitle} logo`}
         className="max-w-full h-auto object-contain"
         loading="lazy" // Native lazy loading as additional optimization
         style={{
@@ -127,7 +130,7 @@ export function ShowTitleLogo({
           setError(true);
         }}
       />
-      <span className="sr-only">{showTitle}</span>
+      <span className="sr-only">{contentTitle}</span>
     </div>
   );
-}
+};

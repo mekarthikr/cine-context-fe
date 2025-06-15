@@ -3,17 +3,17 @@ import { useNavigate } from 'react-router';
 import { Search, X } from 'lucide-react';
 import { Input } from '@app/ui/input';
 import { Button } from '@app/ui/button';
-import { SearchResults } from '@app/components/SearchResults';
+import { SearchResults } from './SearchResults';
 
 interface SearchBarProps {
   className?: string;
   placeholder?: string;
 }
 
-export function SearchBar({
+export const SearchBar: React.FC<SearchBarProps> = ({
   className = '',
   placeholder = 'Search by emotion, theme, or title',
-}: SearchBarProps) {
+}) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -163,4 +163,4 @@ export function SearchBar({
       )}
     </div>
   );
-}
+};

@@ -22,23 +22,14 @@ import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import { ContentBackdrop } from '../ContentBackdrop';
-import { ContentTitleLogo } from '../ContentTitleLogo';
-import { TrailerModal } from '../TrailerModal';
-import {
-  tmdbApi,
-  type TMDBMovie,
-  type TMDBCredits,
-  type TMDBVideo,
-  formatRating,
-  getYear,
-} from '../../lib/tmdb';
+import { ContentBackdrop } from '../show/components/ContentBackdrop';
+import { ContentTitleLogo } from '../show/components/ContentTitleLogo';
+import { TrailerModal } from './components/TrailerModal';
+import { tmdbApi, formatRating, getYear } from '@app/service/tmdb';
+import type { TMDBCredits, TMDBMovie, TMDBVideo } from '@app/types/tmdb';
 
-export default function MovieDetailsPage() {
+export const MovieDetailsPage: React.FC = () => {
   const { movieId } = useParams();
-  // const movieId = Number(params.id)
-
-  // State
   const [movie, setMovie] = useState<TMDBMovie | null>(null);
   const [credits, setCredits] = useState<TMDBCredits | null>(null);
   const [videos, setVideos] = useState<TMDBVideo[]>([]);
@@ -95,7 +86,7 @@ export default function MovieDetailsPage() {
   const openTrailerModal = () => {
     setShowTrailerModal(true);
   };
-  // const networks =([movie?.production_companies[0]] || []) as TMDBProductionCompany;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
@@ -734,4 +725,4 @@ export default function MovieDetailsPage() {
       />
     </div>
   );
-}
+};
