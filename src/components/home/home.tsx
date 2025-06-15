@@ -7,8 +7,6 @@ import {
   ChevronRight,
   Flame,
   Filter,
-  SunMedium,
-  Moon,
   ArrowRight,
   Calendar,
   Film,
@@ -38,7 +36,6 @@ import { SearchBar } from '../search/components/SearchBar';
 import { ContentBackdrop } from '../show/components/ContentBackdrop';
 import { ContentTitleLogo } from '../show/components/ContentTitleLogo';
 import { tmdbApi, isMovie, getTitle, formatRating, getYear } from '@app/service/tmdb';
-import { useTheme } from '@app/components/common/ThemeProvider';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { Carousel } from 'react-responsive-carousel';
@@ -192,7 +189,7 @@ const ContentSkeleton: React.FC = () => (
 );
 
 const HomePage: React.FC = () => {
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
 
   // Content state
   const [, setHeroContent] = useState<ContentItem | null>(null);
@@ -683,7 +680,7 @@ const HomePage: React.FC = () => {
             {/* User Controls */}
             <div className="flex items-center gap-3">
               {/* Theme Toggle */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => {
@@ -696,7 +693,7 @@ const HomePage: React.FC = () => {
                 ) : (
                   <Moon className="h-5 w-5" />
                 )}
-              </Button>
+              </Button> */}
 
               {/* User Profile */}
               <DropdownMenu>
