@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 // import { ForgotPassword } from '../../../components/auth/forgot-password/ForgotPassword';
 // import { PersonDetailsPage } from '../../../components/profile/Profile';
 import { ThemeProvider } from '../../../components/common/ThemeProvider';
+import { HomePage } from '@app/components/home/Home';
 // import { HomePage } from '../../home/Home';
 
 export const AppRoutes: React.FC = () => (
@@ -13,7 +14,7 @@ export const AppRoutes: React.FC = () => (
     <ThemeProvider defaultTheme="dark" storageKey="cinecontext-theme">
       <Routes>
         <Route index={true} element={<Navigate to={'/home'} />} />
-        {/* <Route path="home" element={<HomePage />} /> */}
+        <Route path="home" element={<HomePage />} />
         {/* <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="movie/:movieId" element={<MovieDetailsPage />} />
         <Route path="person/:personId" element={<PersonDetailsPage />} />
