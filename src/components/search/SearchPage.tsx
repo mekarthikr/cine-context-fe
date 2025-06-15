@@ -8,7 +8,7 @@ import { Card, CardContent } from '@app/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@app/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@app/ui/select';
 import { Checkbox } from '@app/ui/checkbox';
-// import { Skeleton } from '../../components/skeleton/Skeleton';
+import { Skeleton } from '../skeleton/Skeleton';
 import { useInView } from 'react-intersection-observer';
 import {
   tmdbApi,
@@ -21,7 +21,6 @@ import {
   getYear,
 } from '@app/service/tmdb';
 import type { TMDBPerson, TMDBMovie, TMDBTVShow } from '@app/types/tmdb';
-import { Skeleton } from '../skeleton/Skeleton';
 
 interface SearchResult {
   id: number;
